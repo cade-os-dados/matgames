@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balança Algébrica - Desafio das Equações</title>
+    <!-- Importação de fontes premium do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #1e1b4b 100%);
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --color-easy: #10b981;
+            --color-easy-glow: rgba(16, 185, 129, 0.2);
+            --color-medium: #f59e0b;
+            --color-medium-glow: rgba(245, 158, 11, 0.2);
+            --color-hard: #ef4444;
+            --color-hard-glow: rgba(239, 68, 68, 0.2);
+            --accent-indigo: #6366f1;
+            --accent-violet: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Título do cabeçalho */
+        header {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.05em;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.15));
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        /* Container Principal do Jogo (Glassmorphism) */
+        #game-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 35px;
+            max-width: 680px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                        0 0 40px 0 rgba(99, 102, 241, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        /* Adiciona um efeito de brilho no topo do card */
+        #game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ---------------- TELA DO MENU INICIAL ---------------- */
+        #start-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .menu-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 520px) {
+            .difficulty-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        .diff-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .diff-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .diff-card.easy:hover {
+            border-color: var(--color-easy);
+            box-shadow: 0 10px 20px -10px var(--color-easy-glow);
+        }
+
+        .diff-card.medium:hover {
+            border-color: var(--color-medium);
+            box-shadow: 0 10px 20px -10px var(--color-medium-glow);
+        }
+
+        .diff-card.hard:hover {
+            border-color: var(--color-hard);
+            box-shadow: 0 10px 20px -10px var(--color-hard-glow);
+        }
+
+        .diff-badge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .easy .diff-badge {
+            background: var(--color-easy-glow);
+            color: #34d399;
+        }
+
+        .medium .diff-badge {
+            background: var(--color-medium-glow);
+            color: #fbbf24;
+        }
+
+        .hard .diff-badge {
+            background: var(--color-hard-glow);
+            color: #f87171;
+        }
+
+        .diff-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .diff-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ---------------- TELA DO JOGO ---------------- */
+        /* Painel Superior (HUD) */
+        #game-hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+        }
+
+        .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .hud-label {
+            color: var(--text-secondary);
+        }
+
+        .hud-value {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        #score-val {
+            color: #f59e0b;
+        }
+
+        /* Canvas */
+        #canvas-container {
+            position: relative;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            margin: 15px 0 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            display: block;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+        }
+
+        /* Instruções */
+        #instrucao {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 15px 0;
+            color: #e2e8f0;
+            min-height: 50px;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #instrucao b {
+            font-family: 'Outfit', sans-serif;
+            color: var(--accent-indigo);
+            font-size: 1.3rem;
+            margin-top: 4px;
+            background: rgba(99, 102, 241, 0.1);
+            padding: 2px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            letter-spacing: 0.02em;
+        }
+
+        /* Grelha de Alternativas (Fase 1) */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Botões de Alternativas */
+        .btn-alt {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 14px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-alt:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .btn-alt:active {
+            transform: translateY(0);
+        }
+
+        /* Input de Resposta (Fase 2) */
+        #fase-resposta {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 4px 8px;
+            transition: var(--transition-smooth);
+        }
+
+        .input-group:focus-within {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+        }
+
+        #input-resposta {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 8px;
+            width: 100px;
+            text-align: center;
+            outline: none;
+        }
+
+        /* Remove as setas padrão do input number */
+        #input-resposta::-webkit-outer-spin-button,
+        #input-resposta::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        #input-resposta {
+            -moz-appearance: textfield;
+        }
+
+        .input-unit {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding-right: 12px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--accent-indigo) 0%, var(--accent-violet) 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(99, 102, 241, 0.6);
+            filter: brightness(1.1);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Feedback da Rodada */
+        #feedback {
+            margin-top: 20px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 12px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .correto {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .errado {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        /* Próximo Botão */
+        #btn-proximo {
+            margin: 20px auto 0 auto;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 36px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: 0 10px 20px -10px rgba(16, 185, 129, 0.4);
+            display: block;
+        }
+
+        #btn-proximo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(16, 185, 129, 0.6);
+        }
+
+        #btn-proximo:active {
+            transform: translateY(0);
+        }
+
+        /* ---------------- TELA DE ENCERRAMENTO (SUMMARY) ---------------- */
+        #summary-screen {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            padding: 15px 0;
+        }
+
+        .summary-header {
+            font-size: 2.2rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+        }
+
+        /* Estrelas de Pontuação */
+        .stars-container {
+            display: flex;
+            gap: 12px;
+            margin: 5px 0;
+        }
+
+        .star {
+            width: 42px;
+            height: 42px;
+            fill: #334155;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .star.filled {
+            fill: #f59e0b;
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+            transform: scale(1.1);
+        }
+
+        /* Painel de Pontuação */
+        .score-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .score-panel-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .score-panel-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #fbbf24;
+            line-height: 1;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Botões de Ação do Summary */
+        .actions-container {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 1px solid transparent;
+            text-align: center;
+        }
+
+        .btn-action-primary {
+            background: linear-gradient(135deg, var(--accent-indigo) 0%, var(--accent-violet) 100%);
+            color: white;
+            box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-action-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn-action-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: var(--glass-border);
+            color: var(--text-primary);
+        }
+
+        .btn-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--text-secondary);
+        }
+
+        /* Botão Sair/Voltar para o Gameplay */
+        .btn-back-menu {
+            margin-top: 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-back-menu:hover {
+            color: var(--text-primary);
+        }
+
+        /* Animações e Efeitos */
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.15); }
+            50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.35); }
+            100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.15); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Balança Algébrica</h1>
+        <p>Desenvolva seu raciocínio algébrico e equilibre a balança</p>
+    </header>
+    
+    <div id="game-container">
+        
+        <!-- ================= TELA 1: MENU INICIAL ================= -->
+        <div id="start-menu">
+            <div class="menu-title">Selecione o nível de dificuldade para iniciar:</div>
+            
+            <div class="difficulty-grid">
+                <!-- Nível 1 -->
+                <div class="diff-card easy" onclick="iniciarJogo(1)">
+                    <div>
+                        <div class="diff-badge">Nível 1</div>
+                        <div class="diff-title">Fácil</div>
+                        <div class="diff-desc">Equações básicas. Caixas em um lado e um único peso metálico do outro.</div>
+                    </div>
+                </div>
+
+                <!-- Nível 2 -->
+                <div class="diff-card medium" onclick="iniciarJogo(2)">
+                    <div>
+                        <div class="diff-badge">Nível 2</div>
+                        <div class="diff-title">Médio</div>
+                        <div class="diff-desc">Múltiplos pesos. Caixas em um lado e vários pesos com valores diferentes do outro.</div>
+                    </div>
+                </div>
+
+                <!-- Nível 3 -->
+                <div class="diff-card hard" onclick="iniciarJogo(3)">
+                    <div>
+                        <div class="diff-badge">Nível 3</div>
+                        <div class="diff-title">Difícil</div>
+                        <div class="diff-desc">Mistura total. Caixas e pesos distribuídos nos dois pratos da balança.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TELA 2: ÁREA DE GAMEPLAY ================= -->
+        <div id="gameplay-area" class="hidden">
+            <!-- HUD Superior -->
+            <div id="game-hud">
+                <div class="hud-item" id="difficulty-indicator">
+                    <span class="hud-label">Nível:</span>
+                    <span class="hud-value" id="diff-val">Fácil</span>
+                </div>
+                <div class="hud-item" id="round-indicator">
+                    <span class="hud-label">Rodada:</span>
+                    <span class="hud-value" id="round-val">1 / 5</span>
+                </div>
+                <div class="hud-item" id="score-indicator">
+                    <span class="hud-label">Pontos:</span>
+                    <span class="hud-value" id="score-val">0</span>
+                </div>
+            </div>
+            
+            <!-- Visualização da Balança -->
+            <div id="canvas-container">
+                <canvas id="balancaCanvas" width="500" height="220"></canvas>
+            </div>
+
+            <!-- Instrução da Fase -->
+            <div id="instrucao">Carregando desafio...</div>
+
+            <!-- Fase 1: Escolha da Equação -->
+            <div id="fase-equacao" class="options-grid"></div>
+
+            <!-- Fase 2: Resolução da Incógnita (x) -->
+            <div id="fase-resposta" class="hidden">
+                <div class="input-group">
+                    <input type="number" id="input-resposta" placeholder="Peso" min="1" autocomplete="off">
+                    <span class="input-unit">kg</span>
+                </div>
+                <button class="btn-submit" onclick="verificarRespostaValor()">Confirmar Resposta</button>
+            </div>
+
+            <!-- Feedback da Ação -->
+            <div id="feedback"></div>
+            
+            <!-- Botão Avançar -->
+            <button id="btn-proximo" class="hidden" onclick="proximoDesafio()">Avançar para Próxima Rodada</button>
+            
+            <!-- Voltar ao menu principal -->
+            <center>
+                <button class="btn-back-menu" onclick="confirmarVoltarMenu()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Abandonar Jogo
+                </button>
+            </center>
+        </div>
+
+        <!-- ================= TELA 3: ENCERRAMENTO (SUMMARY) ================= -->
+        <div id="summary-screen" class="hidden">
+            <div class="summary-header" id="summary-headline">Incrível!</div>
+            
+            <!-- Estrelas -->
+            <div class="stars-container" id="stars-row">
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            </div>
+
+            <!-- Painel de Estatísticas -->
+            <div class="score-panel">
+                <div class="score-panel-title">Sua Pontuação Final</div>
+                <div class="score-panel-value" id="summary-score">0</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Nível de Dificuldade</div>
+                        <div class="stat-value" id="summary-diff">Médio</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Precisão Equações</div>
+                        <div class="stat-value" id="summary-eq-acc">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Precisão Pesos</div>
+                        <div class="stat-value" id="summary-val-acc">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Erros Totais</div>
+                        <div class="stat-value" id="summary-errors">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="actions-container">
+                <button class="btn-action btn-action-primary" onclick="jogarNovamente()">Jogar Novamente</button>
+                <button class="btn-action btn-action-secondary" onclick="voltarMenuPrincipal()">Menu Principal</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const canvas = document.getElementById('balancaCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Elementos da interface
+        const elStartMenu = document.getElementById('start-menu');
+        const elGameplayArea = document.getElementById('gameplay-area');
+        const elSummaryScreen = document.getElementById('summary-screen');
+        
+        const elInstrucao = document.getElementById('instrucao');
+        const elFaseEquacao = document.getElementById('fase-equacao');
+        const elFaseResposta = document.getElementById('fase-resposta');
+        const elFeedback = document.getElementById('feedback');
+        const elBtnProximo = document.getElementById('btn-proximo');
+        
+        const elDiffVal = document.getElementById('diff-val');
+        const elRoundVal = document.getElementById('round-val');
+        const elScoreVal = document.getElementById('score-val');
+        const elInputResposta = document.getElementById('input-resposta');
+
+        // Estado do jogo
+        let jogo = {
+            nivelDificuldade: 1, // 1: Fácil, 2: Médio, 3: Difícil
+            rodadaAtual: 1,
+            maxRodadas: 5,
+            pontos: 0,
+            faseAtual: 1, // 1: Escolha da equação, 2: Resolução do X
+            
+            // Dados do desafio corrente
+            pesoCaixa: 0, // x
+            ladoEsquerdo: { caixas: 0, pesos: [] }, // { caixas: N, pesos: [W1, W2...] }
+            ladoDireito: { caixas: 0, pesos: [] },
+            
+            equacaoCorreta: "",
+            
+            // Estatísticas para a tela final
+            primeiraTentativaEquacao: true,
+            primeiraTentativaValor: true,
+            equacoesCertasPrimeira: 0,
+            valoresCertoPrimeira: 0,
+            errosRodada: 0,
+            errosTotais: 0
+        };
+
+        // Inicia o jogo a partir do menu principal
+        function iniciarJogo(nivel) {
+            jogo.nivelDificuldade = nivel;
+            jogo.rodadaAtual = 1;
+            jogo.pontos = 0;
+            jogo.equacoesCertasPrimeira = 0;
+            jogo.valoresCertoPrimeira = 0;
+            jogo.errosTotais = 0;
+            
+            // Atualiza visual do HUD de nível
+            const niveisTextos = { 1: "Fácil", 2: "Médio", 3: "Difícil" };
+            elDiffVal.textContent = niveisTextos[nivel];
+            
+            // Transição de tela
+            elStartMenu.classList.add('hidden');
+            elSummaryScreen.classList.add('hidden');
+            elGameplayArea.classList.remove('hidden');
+            
+            gerarDesafio();
+        }
+
+        // Decompõe um valor total em parcelas de pesos diferentes (múltiplos de 5 se possível)
+        function gerarPesosDiferentes(total) {
+            // Conjunto de pesos clássicos para o jogo
+            const opcoes = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+            let arr = [...opcoes].sort(() => Math.random() - 0.5);
+            
+            // Tenta decompor em 2 pesos diferentes
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = i + 1; j < arr.length; j++) {
+                    if (arr[i] + arr[j] === total) {
+                        return [arr[i], arr[j]].sort((a, b) => b - a); // Ordena decrescente
+                    }
+                }
+            }
+            
+            // Tenta decompor em 3 pesos diferentes
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = i + 1; j < arr.length; j++) {
+                    for (let k = j + 1; k < arr.length; k++) {
+                        if (arr[i] + arr[j] + arr[k] === total) {
+                            return [arr[i], arr[j], arr[k]].sort((a, b) => b - a);
+                        }
+                    }
+                }
+            }
+            
+            // Fallback caso não seja possível achar distintas (ex: valores pequenos como 10 ou 15)
+            if (total === 10) return [7, 3];
+            if (total === 15) return [10, 5];
+            if (total === 20) return [12, 8];
+            
+            // Fallback geral genérico
+            let p1 = Math.floor(total * 0.6);
+            let p2 = total - p1;
+            if (p1 === p2) {
+                p1 += 1;
+                p2 -= 1;
+            }
+            return [p1, p2].sort((a, b) => b - a);
+        }
+
+        // Gera o desafio correspondente ao nível de dificuldade
+        function gerarDesafio() {
+            elRoundVal.textContent = `${jogo.rodadaAtual} / ${jogo.maxRodadas}`;
+            elScoreVal.textContent = jogo.pontos;
+            
+            jogo.faseAtual = 1;
+            jogo.primeiraTentativaEquacao = true;
+            jogo.primeiraTentativaValor = true;
+            jogo.errosRodada = 0;
+            
+            ocultarFeedback();
+            elInputResposta.value = "";
+            elBtnProximo.classList.add('hidden');
+            elFaseResposta.classList.add('hidden');
+            elFaseEquacao.classList.remove('hidden');
+
+            // Reinicia layouts de prato
+            jogo.ladoEsquerdo = { caixas: 0, pesos: [] };
+            jogo.ladoDireito = { caixas: 0, pesos: [] };
+
+            // Gerador de pesos baseado na dificuldade
+            if (jogo.nivelDificuldade === 1) {
+                // NÍVEL 1: Caixas de um lado, peso único do outro (Igual original)
+                jogo.pesoCaixa = (Math.floor(Math.random() * 5) + 2) * 5; // 10, 15, 20, 25, 30 kg
+                const qtdCaixas = Math.floor(Math.random() * 3) + 2; // 2 a 4 caixas
+                const pesoFixo = qtdCaixas * jogo.pesoCaixa;
+                
+                // Força caixas na esquerda e peso na direita até a rodada 3 no nível 1
+                let ladoCaixas = Math.random() > 0.5 ? 'esquerda' : 'direita';
+                if (jogo.rodadaAtual <= 2) {
+                    ladoCaixas = 'esquerda';
+                }
+                
+                if (ladoCaixas === 'esquerda') {
+                    jogo.ladoEsquerdo.caixas = qtdCaixas;
+                    jogo.ladoDireito.pesos = [pesoFixo];
+                    jogo.equacaoCorreta = `${qtdCaixas}x = ${pesoFixo}`;
+                } else {
+                    jogo.ladoDireito.caixas = qtdCaixas;
+                    jogo.ladoEsquerdo.pesos = [pesoFixo];
+                    jogo.equacaoCorreta = `${pesoFixo} = ${qtdCaixas}x`;
+                }
+                
+            } else if (jogo.nivelDificuldade === 2) {
+                // NÍVEL 2: Caixas de um lado, múltiplos pesos com KGs diferentes do outro
+                jogo.pesoCaixa = (Math.floor(Math.random() * 3) + 2) * 5; // 10, 15, 20 kg
+                const qtdCaixas = Math.floor(Math.random() * 3) + 2; // 2 a 4 caixas
+                const pesoTotal = qtdCaixas * jogo.pesoCaixa;
+                
+                // Gera a lista de pesos decomposta com KGs diferentes
+                const listaPesos = gerarPesosDiferentes(pesoTotal);
+                const ladoCaixas = Math.random() > 0.5 ? 'esquerda' : 'direita';
+                const somaPesosStr = listaPesos.join(' + ');
+
+                if (ladoCaixas === 'esquerda') {
+                    jogo.ladoEsquerdo.caixas = qtdCaixas;
+                    jogo.ladoDireito.pesos = listaPesos;
+                    jogo.equacaoCorreta = `${qtdCaixas}x = ${somaPesosStr}`;
+                } else {
+                    jogo.ladoDireito.caixas = qtdCaixas;
+                    jogo.ladoEsquerdo.pesos = listaPesos;
+                    jogo.equacaoCorreta = `${somaPesosStr} = ${qtdCaixas}x`;
+                }
+
+            } else {
+                // NÍVEL 3: Caixas e pesos misturados em ambos os lados
+                // Ax + B = Cx + D.
+                // Escolhemos x (peso da caixa)
+                jogo.pesoCaixa = (Math.floor(Math.random() * 3) + 1) * 5; // 5, 10, 15 kg
+                
+                // Escolhemos a quantidade de caixas: A (esquerda) e C (direita), com A > C
+                const caixasL = Math.floor(Math.random() * 2) + 2; // 2 a 3 caixas
+                const caixasR = caixasL - 1; // Sempre 1 caixa a menos na direita (simplifica raciocínio e cabe na tela)
+                
+                // Peso fixo no lado esquerdo (B)
+                const pesoL = (Math.floor(Math.random() * 3) + 1) * 5; // 5, 10, 15 kg
+                
+                // Peso fixo no lado direito (D) para equilibrar: D = B + (A - C)*x
+                const pesoR = pesoL + (caixasL - caixasR) * jogo.pesoCaixa;
+
+                // Salva no estado
+                const ladoEsquerdaMaior = Math.random() > 0.5;
+                if (ladoEsquerdaMaior) {
+                    jogo.ladoEsquerdo.caixas = caixasL;
+                    jogo.ladoEsquerdo.pesos = [pesoL];
+                    
+                    jogo.ladoDireito.caixas = caixasR;
+                    jogo.ladoDireito.pesos = [pesoR];
+                    
+                    jogo.equacaoCorreta = `${caixasL}x + ${pesoL} = ${caixasR === 1 ? 'x' : caixasR + 'x'} + ${pesoR}`;
+                } else {
+                    jogo.ladoEsquerdo.caixas = caixasR;
+                    jogo.ladoEsquerdo.pesos = [pesoR];
+                    
+                    jogo.ladoDireito.caixas = caixasL;
+                    jogo.ladoDireito.pesos = [pesoL];
+                    
+                    jogo.equacaoCorreta = `${caixasR === 1 ? 'x' : caixasR + 'x'} + ${pesoR} = ${caixasL}x + ${pesoL}`;
+                }
+            }
+
+            desenharBalanca();
+            montarAlternativas();
+        }
+
+        // Desenha a balança e os elementos com layout futurista no Canvas
+        function desenharBalanca() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Fundo escuro sutil
+            ctx.fillStyle = "rgba(30, 41, 59, 0.4)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Suporte/Base da balança
+            ctx.fillStyle = "#475569";
+            ctx.beginPath();
+            ctx.moveTo(215, 205);
+            ctx.lineTo(285, 205);
+            ctx.lineTo(260, 115);
+            ctx.lineTo(240, 115);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Pézinho da base
+            ctx.fillStyle = "#334155";
+            ctx.fillRect(200, 205, 100, 7);
+            
+            // Travessão da Balança (Viga central azul neon)
+            ctx.strokeStyle = "#4f46e5";
+            ctx.lineWidth = 6;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(90, 115);
+            ctx.lineTo(410, 115);
+            ctx.stroke();
+            
+            // Pivot / Ponto central brilhante
+            ctx.fillStyle = "#6366f1";
+            ctx.beginPath();
+            ctx.arc(250, 115, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#818cf8";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Cordas/Suportes dos pratos
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = "rgba(148, 163, 184, 0.6)";
+            
+            // Esquerdo
+            ctx.beginPath();
+            ctx.moveTo(90, 115);
+            ctx.lineTo(55, 160);
+            ctx.moveTo(90, 115);
+            ctx.lineTo(125, 160);
+            ctx.stroke();
+            
+            // Direito
+            ctx.beginPath();
+            ctx.moveTo(410, 115);
+            ctx.lineTo(375, 160);
+            ctx.moveTo(410, 115);
+            ctx.lineTo(445, 160);
+            ctx.stroke();
+
+            // Pratos da balança (Bordas de metal com degradê)
+            ctx.fillStyle = "#64748b";
+            ctx.fillRect(45, 160, 90, 7); // Esquerdo
+            ctx.fillRect(365, 160, 90, 7); // Direito
+            
+            // Desenhar elementos de cada lado organizados
+            renderizarConteudoPrato(90, 155, jogo.ladoEsquerdo);
+            renderizarConteudoPrato(410, 155, jogo.ladoDireito);
+        }
+
+        // Renderiza de maneira centralizada e organizada caixas e pesos em um prato da balança
+        function renderizarConteudoPrato(xCentro, yBase, prato) {
+            const tamCaixa = 22;
+            const largPeso = 24;
+            const altPeso = 25;
+            const gap = 3;
+            
+            const numCaixas = prato.caixas;
+            const pesos = prato.pesos;
+            
+            // Calcula a largura total para centralização
+            const larguraCaixas = numCaixas > 0 ? (numCaixas * tamCaixa) + ((numCaixas - 1) * gap) : 0;
+            const larguraPesos = pesos.length > 0 ? (pesos.length * largPeso) + ((pesos.length - 1) * gap) : 0;
+            
+            let totalLargura = larguraCaixas + larguraPesos;
+            if (larguraCaixas > 0 && larguraPesos > 0) {
+                totalLargura += gap * 2; // Espaço de separação entre caixas e pesos
+            }
+            
+            let atualX = xCentro - (totalLargura / 2);
+            
+            // 1. Desenha as caixas
+            for (let i = 0; i < numCaixas; i++) {
+                desenharCaixa(atualX, yBase - tamCaixa, tamCaixa);
+                atualX += tamCaixa + gap;
+            }
+            
+            // Separador sutil se misturar
+            if (larguraCaixas > 0 && larguraPesos > 0) {
+                atualX += gap * 2;
+            }
+            
+            // 2. Desenha os pesos
+            pesos.forEach(val => {
+                desenharPesoMetal(atualX, yBase - altPeso, largPeso, altPeso, val);
+                atualX += largPeso + gap;
+            });
+        }
+
+        // Desenha uma caixa individual de papelão estilizada com 'x'
+        function desenharCaixa(x, y, tam) {
+            // Corpo da caixa (laranja suave degradê)
+            let grad = ctx.createLinearGradient(x, y, x + tam, y + tam);
+            grad.addColorStop(0, "#f59e0b");
+            grad.addColorStop(1, "#d97706");
+            
+            ctx.fillStyle = grad;
+            ctx.fillRect(x, y, tam, tam);
+            
+            // Borda escura suave
+            ctx.strokeStyle = "#b45309";
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(x, y, tam, tam);
+            
+            // Fita adesiva da caixa de papelão (detalhe visual realista)
+            ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+            ctx.fillRect(x + (tam/2) - 3, y, 6, tam);
+            
+            // Símbolo 'x' de incógnita
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 13px 'Outfit', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("x", x + tam/2, y + tam/2 + 0.5);
+        }
+
+        // Desenha um peso metálico clássico cinza/azul com o valor escrito
+        function desenharPesoMetal(x, y, larg, alt, valor) {
+            // Corpo do peso trapezoidal / cilíndrico
+            let grad = ctx.createLinearGradient(x, y, x + larg, y + alt);
+            grad.addColorStop(0, "#0891b2");
+            grad.addColorStop(1, "#0e7490");
+            
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            // Formato de peso antigo estilizado
+            ctx.moveTo(x + 4, y);
+            ctx.lineTo(x + larg - 4, y);
+            ctx.lineTo(x + larg, y + alt);
+            ctx.lineTo(x, y + alt);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Alça do peso metálico
+            ctx.strokeStyle = "#0891b2";
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(x + larg/2, y, larg/4, Math.PI, 0);
+            ctx.stroke();
+
+            // Contorno do peso
+            ctx.strokeStyle = "#155e75";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x + 4, y);
+            ctx.lineTo(x + larg - 4, y);
+            ctx.lineTo(x + larg, y + alt);
+            ctx.lineTo(x, y + alt);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Texto interno (valor do peso)
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 9px 'Outfit', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(`${valor}`, x + larg/2, y + alt/2 + 2);
+        }
+
+        // Monta 4 alternativas de equações matemáticas, incluindo a correta
+        function montarAlternativas() {
+            elInstrucao.innerHTML = "Fase 1: <b>Qual equação representa o equilíbrio da balança?</b>";
+            elFaseEquacao.innerHTML = "";
+
+            let alternativas = [jogo.equacaoCorreta];
+            
+            // Gera 3 alternativas plausíveis com erros lógicos comuns
+            while (alternativas.length < 4) {
+                let errada = "";
+                let tipoErro = Math.floor(Math.random() * 4);
+                
+                // Parâmetros do desafio para gerar alternativas erradas
+                const pratoE = jogo.ladoEsquerdo;
+                const pratoD = jogo.ladoDireito;
+                
+                if (jogo.nivelDificuldade === 1) {
+                    const pesoFixo = pratoE.pesos.length > 0 ? pratoE.pesos[0] : pratoD.pesos[0];
+                    const qtdCaixas = pratoE.caixas > 0 ? pratoE.caixas : pratoD.caixas;
+                    
+                    if (tipoErro === 0) {
+                        // Erro de sinal / operação (+)
+                        errada = pratoE.caixas > 0 ? `${qtdCaixas} + x = ${pesoFixo}` : `${pesoFixo} = ${qtdCaixas} + x`;
+                    } else if (tipoErro === 1) {
+                        // Inversão de termos (Ex: 30x = 3)
+                        errada = pratoE.caixas > 0 ? `${pesoFixo}x = ${qtdCaixas}` : `${qtdCaixas} = ${pesoFixo}x`;
+                    } else {
+                        // Caixa com contagem errada (+/- 1)
+                        let qtdFalsa = qtdCaixas + (Math.random() > 0.5 ? 1 : -1);
+                        if (qtdFalsa <= 1) qtdFalsa = 5;
+                        errada = pratoE.caixas > 0 ? `${qtdFalsa}x = ${pesoFixo}` : `${pesoFixo} = ${qtdFalsa}x`;
+                    }
+                } else if (jogo.nivelDificuldade === 2) {
+                    const pesosAlvo = pratoE.pesos.length > 0 ? pratoE.pesos : pratoD.pesos;
+                    const qtdCaixas = pratoE.caixas > 0 ? pratoE.caixas : pratoD.caixas;
+                    
+                    if (tipoErro === 0) {
+                        // Erro de operação (+)
+                        errada = pratoE.caixas > 0 ? `${qtdCaixas} + x = ${pesosAlvo.join(' + ')}` : `${pesosAlvo.join(' + ')} = ${qtdCaixas} + x`;
+                    } else if (tipoErro === 1) {
+                        // Contagem errada de caixas
+                        let qtdFalsa = qtdCaixas + (Math.random() > 0.5 ? 1 : -1);
+                        if (qtdFalsa <= 1) qtdFalsa = 5;
+                        errada = pratoE.caixas > 0 ? `${qtdFalsa}x = ${pesosAlvo.join(' + ')}` : `${pesosAlvo.join(' + ')} = ${qtdFalsa}x`;
+                    } else {
+                        // Erro em um dos pesos somados (Altera levemente o último peso)
+                        let pesosFalsos = [...pesosAlvo];
+                        pesosFalsos[pesosFalsos.length - 1] += 5;
+                        errada = pratoE.caixas > 0 ? `${qtdCaixas}x = ${pesosFalsos.join(' + ')}` : `${pesosFalsos.join(' + ')} = ${qtdCaixas}x`;
+                    }
+                } else {
+                    // Nível 3: Ax + B = Cx + D
+                    // Extrai valores
+                    const caixasL = pratoE.caixas;
+                    const pesoL = pratoE.pesos[0];
+                    const caixasR = pratoD.caixas;
+                    const pesoR = pratoD.pesos[0];
+                    
+                    if (tipoErro === 0) {
+                        // Inversão dos pesos fixos (Ax + D = Cx + B)
+                        errada = `${caixasL}x + ${pesoR} = ${caixasR === 1 ? 'x' : caixasR + 'x'} + ${pesoL}`;
+                    } else if (tipoErro === 1) {
+                        // Inversão de operador de caixas (+) por soma comum sem incógnita
+                        errada = `${caixasL} + x + ${pesoL} = ${caixasR} + x + ${pesoR}`;
+                    } else {
+                        // Contagem errada de caixas em um dos lados
+                        let caixasFalsas = caixasL + (Math.random() > 0.5 ? 1 : -1);
+                        if (caixasFalsas === caixasR || caixasFalsas <= 0) caixasFalsas = caixasL + 2;
+                        errada = `${caixasFalsas}x + ${pesoL} = ${caixasR === 1 ? 'x' : caixasR + 'x'} + ${pesoR}`;
+                    }
+                }
+
+                if (!alternativas.includes(errada)) {
+                    alternativas.push(errada);
+                }
+            }
+
+            // Embaralha alternativas
+            alternativas.sort(() => Math.random() - 0.5);
+
+            // Cria os botões das alternativas
+            alternativas.forEach(alt => {
+                const btn = document.createElement('button');
+                btn.className = "btn-alt";
+                btn.textContent = alt;
+                btn.onclick = () => verificarRespostaEquacao(alt);
+                elFaseEquacao.appendChild(btn);
+            });
+        }
+
+        // Verifica a resposta da Fase 1 (Equação)
+        function verificarRespostaEquacao(escolhida) {
+            if (escolhida === jogo.equacaoCorreta) {
+                mostrarFeedback("Equação correta! Muito bem! 🌟 A balança está perfeitamente equilibrada.", "correto");
+                
+                if (jogo.primeiraTentativaEquacao) {
+                    jogo.pontos += 15;
+                    jogo.equacoesCertasPrimeira++;
+                } else {
+                    jogo.pontos += 5;
+                }
+                elScoreVal.textContent = jogo.pontos;
+                
+                // Aguarda 1.5 segundos para passar para a Fase 2
+                setTimeout(() => {
+                    iniciarFaseResposta();
+                }, 1300);
+            } else {
+                mostrarFeedback("Essa equação não representa o equilíbrio físico da balança. Analise novamente!", "errado");
+                jogo.primeiraTentativaEquacao = false;
+                jogo.errosRodada++;
+                jogo.errosTotais++;
+                
+                // Reduz pontos por erro sutilmente
+                jogo.pontos = Math.max(0, jogo.pontos - 3);
+                elScoreVal.textContent = jogo.pontos;
+            }
+        }
+
+        // Inicializa a Fase 2 (Encontrar valor de X)
+        function iniciarFaseResposta() {
+            jogo.faseAtual = 2;
+            ocultarFeedback();
+            
+            elFaseEquacao.classList.add('hidden');
+            elFaseResposta.classList.remove('hidden');
+            
+            elInstrucao.innerHTML = `Fase 2: Sabendo que a equação é <b>${jogo.equacaoCorreta}</b><br>qual é o peso individual de cada caixa (x)?`;
+            
+            elInputResposta.value = "";
+            elInputResposta.focus();
+        }
+
+        // Verifica a resposta da Fase 2 (Valor numérico de X)
+        function verificarRespostaValor() {
+            const respUsuario = parseInt(elInputResposta.value);
+            
+            if (isNaN(respUsuario)) {
+                mostrarFeedback("Digite um peso numérico válido!", "errado");
+                return;
+            }
+
+            if (respUsuario === jogo.pesoCaixa) {
+                mostrarFeedback(`Parabéns! Cada caixa pesa exatamente ${jogo.pesoCaixa}kg. 🎉`, "correto");
+                
+                if (jogo.primeiraTentativaValor) {
+                    jogo.pontos += 20;
+                    jogo.valoresCertoPrimeira++;
+                } else {
+                    jogo.pontos += 8;
+                }
+                elScoreVal.textContent = jogo.pontos;
+                
+                elFaseResposta.classList.add('hidden');
+                elBtnProximo.classList.remove('hidden');
+            } else {
+                let dica = "Incorreto. ";
+                if (jogo.nivelDificuldade === 1 || jogo.nivelDificuldade === 2) {
+                    dica += "Dica: divida o valor total dos pesos pela quantidade de caixas!";
+                } else {
+                    dica += "Dica: isole os 'x' subtraindo a menor quantidade de ambos os lados, e faça o mesmo com os pesos!";
+                }
+                
+                mostrarFeedback(dica, "errado");
+                jogo.primeiraTentativaValor = false;
+                jogo.errosRodada++;
+                jogo.errosTotais++;
+                
+                jogo.pontos = Math.max(0, jogo.pontos - 4);
+                elScoreVal.textContent = jogo.pontos;
+            }
+        }
+
+        // Gerencia avanço para o próximo desafio ou fim do jogo
+        function proximoDesafio() {
+            if (jogo.rodadaAtual >= jogo.maxRodadas) {
+                finalizarJogo();
+            } else {
+                jogo.rodadaAtual++;
+                gerarDesafio();
+            }
+        }
+
+        // Finaliza o jogo e apresenta tela de encerramento
+        function finalizarJogo() {
+            elGameplayArea.classList.add('hidden');
+            elSummaryScreen.classList.remove('hidden');
+            
+            // Títulos e Headlines divertidas baseadas na pontuação
+            const headlineEl = document.getElementById('summary-headline');
+            const scoreValEl = document.getElementById('summary-score');
+            const diffEl = document.getElementById('summary-diff');
+            const eqAccEl = document.getElementById('summary-eq-acc');
+            const valAccEl = document.getElementById('summary-val-acc');
+            const errorsEl = document.getElementById('summary-errors');
+            
+            scoreValEl.textContent = jogo.pontos;
+            
+            const diffsText = { 1: "Fácil", 2: "Médio", 3: "Difícil" };
+            diffEl.textContent = diffsText[jogo.nivelDificuldade];
+            
+            // Calcula precisão em porcentagem
+            const eqAccuracy = Math.round((jogo.equacoesCertasPrimeira / jogo.maxRodadas) * 100);
+            const valAccuracy = Math.round((jogo.valoresCertoPrimeira / jogo.maxRodadas) * 100);
+            
+            eqAccEl.textContent = `${eqAccuracy}%`;
+            valAccEl.textContent = `${valAccuracy}%`;
+            errorsEl.textContent = jogo.errosTotais;
+
+            // Determina quantidade de estrelas (0 a 3) baseada nos acertos de primeira
+            const totalAcertosPrimeira = jogo.equacoesCertasPrimeira + jogo.valoresCertoPrimeira;
+            let estrelas = 0;
+            
+            if (totalAcertosPrimeira >= 9) {
+                estrelas = 3;
+                headlineEl.textContent = "Matemático Brilhante! 🏆";
+            } else if (totalAcertosPrimeira >= 6) {
+                estrelas = 2;
+                headlineEl.textContent = "Excelente Trabalho! 🌟";
+            } else if (totalAcertosPrimeira >= 3) {
+                estrelas = 1;
+                headlineEl.textContent = "Bom Aprendizado! 👍";
+            } else {
+                estrelas = 0;
+                headlineEl.textContent = "Continue Praticando! 📚";
+            }
+
+            // Renderiza estrelas animadas
+            const starSVGs = document.querySelectorAll('.star');
+            starSVGs.forEach((svg, index) => {
+                if (index < estrelas) {
+                    svg.classList.add('filled');
+                } else {
+                    svg.classList.remove('filled');
+                }
+            });
+        }
+
+        // Funções do Menu / Ações de Encerramento
+        function jogarNovamente() {
+            iniciarJogo(jogo.nivelDificuldade);
+        }
+
+        function voltarMenuPrincipal() {
+            elSummaryScreen.classList.add('hidden');
+            elGameplayArea.classList.add('hidden');
+            elStartMenu.classList.remove('hidden');
+        }
+
+        function confirmarVoltarMenu() {
+            if (confirm("Tem certeza que deseja abandonar a partida atual? Todo o progresso será perdido.")) {
+                voltarMenuPrincipal();
+            }
+        }
+
+        // Exibe balão de feedback estilizado
+        function mostrarFeedback(msg, tipo) {
+            elFeedback.textContent = msg;
+            elFeedback.className = tipo + " show";
+        }
+
+        // Oculta balão de feedback
+        function ocultarFeedback() {
+            elFeedback.textContent = "";
+            elFeedback.className = "";
+        }
+
+        // Captura tecla Enter no input da Fase 2
+        elInputResposta.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                verificarRespostaValor();
+            }
+        });
+    </script>
+</body>
+</html>
