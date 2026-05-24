@@ -235,6 +235,7 @@
             font-family: 'Outfit', sans-serif;
             font-weight: 700;
             color: var(--text-primary);
+            white-space: nowrap;
         }
 
         #score-val {
@@ -626,6 +627,23 @@
             50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.35); }
             100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.15); }
         }
+
+        /* Ajustes para Celular (Mobile UI) */
+        @media (max-width: 480px) {
+            #game-hud {
+                flex-direction: column;
+                gap: 8px;
+                align-items: stretch;
+                padding-bottom: 12px;
+            }
+
+            .hud-item {
+                justify-content: space-between;
+                padding: 10px 16px;
+                border-radius: 12px;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -796,6 +814,7 @@
             maxRodadas: 5,
             pontos: 0,
             faseAtual: 1, // 1: Escolha da equação, 2: Resolução do X
+            historicoEquacoes: [], // Evita equações repetidas na mesma partida
             
             // Dados do desafio corrente
             pesoCaixa: 0, // x
@@ -821,6 +840,7 @@
             jogo.equacoesCertasPrimeira = 0;
             jogo.valoresCertoPrimeira = 0;
             jogo.errosTotais = 0;
+            jogo.historicoEquacoes = [];
             
             // Atualiza visual do HUD de nível
             const niveisTextos = { 1: "Fácil", 2: "Médio", 3: "Difícil" };
@@ -891,90 +911,97 @@
             elFaseResposta.classList.add('hidden');
             elFaseEquacao.classList.remove('hidden');
 
-            // Reinicia layouts de prato
-            jogo.ladoEsquerdo = { caixas: 0, pesos: [] };
-            jogo.ladoDireito = { caixas: 0, pesos: [] };
+            let tentativas = 0;
+            do {
+                // Reinicia layouts de prato
+                jogo.ladoEsquerdo = { caixas: 0, pesos: [] };
+                jogo.ladoDireito = { caixas: 0, pesos: [] };
 
-            // Gerador de pesos baseado na dificuldade
-            if (jogo.nivelDificuldade === 1) {
-                // NÍVEL 1: Caixas de um lado, peso único do outro (Igual original)
-                jogo.pesoCaixa = (Math.floor(Math.random() * 5) + 2) * 5; // 10, 15, 20, 25, 30 kg
-                const qtdCaixas = Math.floor(Math.random() * 3) + 2; // 2 a 4 caixas
-                const pesoFixo = qtdCaixas * jogo.pesoCaixa;
-                
-                // Força caixas na esquerda e peso na direita até a rodada 3 no nível 1
-                let ladoCaixas = Math.random() > 0.5 ? 'esquerda' : 'direita';
-                if (jogo.rodadaAtual <= 2) {
-                    ladoCaixas = 'esquerda';
-                }
-                
-                if (ladoCaixas === 'esquerda') {
-                    jogo.ladoEsquerdo.caixas = qtdCaixas;
-                    jogo.ladoDireito.pesos = [pesoFixo];
-                    jogo.equacaoCorreta = `${qtdCaixas}x = ${pesoFixo}`;
+                // Gerador de pesos baseado na dificuldade
+                if (jogo.nivelDificuldade === 1) {
+                    // NÍVEL 1: Caixas de um lado, peso único do outro (Igual original)
+                    jogo.pesoCaixa = (Math.floor(Math.random() * 5) + 2) * 5; // 10, 15, 20, 25, 30 kg
+                    const qtdCaixas = Math.floor(Math.random() * 3) + 2; // 2 a 4 caixas
+                    const pesoFixo = qtdCaixas * jogo.pesoCaixa;
+                    
+                    // Força caixas na esquerda e peso na direita até a rodada 3 no nível 1
+                    let ladoCaixas = Math.random() > 0.5 ? 'esquerda' : 'direita';
+                    if (jogo.rodadaAtual <= 3) {
+                        ladoCaixas = 'esquerda';
+                    }
+                    
+                    if (ladoCaixas === 'esquerda') {
+                        jogo.ladoEsquerdo.caixas = qtdCaixas;
+                        jogo.ladoDireito.pesos = [pesoFixo];
+                        jogo.equacaoCorreta = `${qtdCaixas}x = ${pesoFixo}`;
+                    } else {
+                        jogo.ladoDireito.caixas = qtdCaixas;
+                        jogo.ladoEsquerdo.pesos = [pesoFixo];
+                        jogo.equacaoCorreta = `${pesoFixo} = ${qtdCaixas}x`;
+                    }
+                    
+                } else if (jogo.nivelDificuldade === 2) {
+                    // NÍVEL 2: Caixas de um lado, múltiplos pesos com KGs diferentes do outro
+                    jogo.pesoCaixa = (Math.floor(Math.random() * 3) + 2) * 5; // 10, 15, 20 kg
+                    const qtdCaixas = Math.floor(Math.random() * 3) + 2; // 2 a 4 caixas
+                    const pesoTotal = qtdCaixas * jogo.pesoCaixa;
+                    
+                    // Gera a lista de pesos decomposta com KGs diferentes
+                    const listaPesos = gerarPesosDiferentes(pesoTotal);
+                    const ladoCaixas = Math.random() > 0.5 ? 'esquerda' : 'direita';
+                    const somaPesosStr = listaPesos.join(' + ');
+
+                    if (ladoCaixas === 'esquerda') {
+                        jogo.ladoEsquerdo.caixas = qtdCaixas;
+                        jogo.ladoDireito.pesos = listaPesos;
+                        jogo.equacaoCorreta = `${qtdCaixas}x = ${somaPesosStr}`;
+                    } else {
+                        jogo.ladoDireito.caixas = qtdCaixas;
+                        jogo.ladoEsquerdo.pesos = listaPesos;
+                        jogo.equacaoCorreta = `${somaPesosStr} = ${qtdCaixas}x`;
+                    }
+
                 } else {
-                    jogo.ladoDireito.caixas = qtdCaixas;
-                    jogo.ladoEsquerdo.pesos = [pesoFixo];
-                    jogo.equacaoCorreta = `${pesoFixo} = ${qtdCaixas}x`;
-                }
-                
-            } else if (jogo.nivelDificuldade === 2) {
-                // NÍVEL 2: Caixas de um lado, múltiplos pesos com KGs diferentes do outro
-                jogo.pesoCaixa = (Math.floor(Math.random() * 3) + 2) * 5; // 10, 15, 20 kg
-                const qtdCaixas = Math.floor(Math.random() * 3) + 2; // 2 a 4 caixas
-                const pesoTotal = qtdCaixas * jogo.pesoCaixa;
-                
-                // Gera a lista de pesos decomposta com KGs diferentes
-                const listaPesos = gerarPesosDiferentes(pesoTotal);
-                const ladoCaixas = Math.random() > 0.5 ? 'esquerda' : 'direita';
-                const somaPesosStr = listaPesos.join(' + ');
+                    // NÍVEL 3: Caixas e pesos misturados em ambos os lados
+                    // Ax + B = Cx + D.
+                    // Escolhemos x (peso da caixa)
+                    jogo.pesoCaixa = (Math.floor(Math.random() * 3) + 1) * 5; // 5, 10, 15 kg
+                    
+                    // Escolhemos a quantidade de caixas: A (esquerda) e C (direita), com A > C
+                    const caixasL = Math.floor(Math.random() * 2) + 2; // 2 a 3 caixas
+                    const caixasR = caixasL - 1; // Sempre 1 caixa a menos na direita (simplifica raciocínio e cabe na tela)
+                    
+                    // Peso fixo no lado esquerdo (B)
+                    const pesoL = (Math.floor(Math.random() * 3) + 1) * 5; // 5, 10, 15 kg
+                    
+                    // Peso fixo no lado direito (D) para equilibrar: D = B + (A - C)*x
+                    const pesoR = pesoL + (caixasL - caixasR) * jogo.pesoCaixa;
 
-                if (ladoCaixas === 'esquerda') {
-                    jogo.ladoEsquerdo.caixas = qtdCaixas;
-                    jogo.ladoDireito.pesos = listaPesos;
-                    jogo.equacaoCorreta = `${qtdCaixas}x = ${somaPesosStr}`;
-                } else {
-                    jogo.ladoDireito.caixas = qtdCaixas;
-                    jogo.ladoEsquerdo.pesos = listaPesos;
-                    jogo.equacaoCorreta = `${somaPesosStr} = ${qtdCaixas}x`;
+                    // Salva no estado
+                    const ladoEsquerdaMaior = Math.random() > 0.5;
+                    if (ladoEsquerdaMaior) {
+                        jogo.ladoEsquerdo.caixas = caixasL;
+                        jogo.ladoEsquerdo.pesos = [pesoL];
+                        
+                        jogo.ladoDireito.caixas = caixasR;
+                        jogo.ladoDireito.pesos = [pesoR];
+                        
+                        jogo.equacaoCorreta = `${caixasL}x + ${pesoL} = ${caixasR === 1 ? 'x' : caixasR + 'x'} + ${pesoR}`;
+                    } else {
+                        jogo.ladoEsquerdo.caixas = caixasR;
+                        jogo.ladoEsquerdo.pesos = [pesoR];
+                        
+                        jogo.ladoDireito.caixas = caixasL;
+                        jogo.ladoDireito.pesos = [pesoL];
+                        
+                        jogo.equacaoCorreta = `${caixasR === 1 ? 'x' : caixasR + 'x'} + ${pesoR} = ${caixasL}x + ${pesoL}`;
+                    }
                 }
+                tentativas++;
+            } while (jogo.historicoEquacoes.includes(jogo.equacaoCorreta) && tentativas < 30);
 
-            } else {
-                // NÍVEL 3: Caixas e pesos misturados em ambos os lados
-                // Ax + B = Cx + D.
-                // Escolhemos x (peso da caixa)
-                jogo.pesoCaixa = (Math.floor(Math.random() * 3) + 1) * 5; // 5, 10, 15 kg
-                
-                // Escolhemos a quantidade de caixas: A (esquerda) e C (direita), com A > C
-                const caixasL = Math.floor(Math.random() * 2) + 2; // 2 a 3 caixas
-                const caixasR = caixasL - 1; // Sempre 1 caixa a menos na direita (simplifica raciocínio e cabe na tela)
-                
-                // Peso fixo no lado esquerdo (B)
-                const pesoL = (Math.floor(Math.random() * 3) + 1) * 5; // 5, 10, 15 kg
-                
-                // Peso fixo no lado direito (D) para equilibrar: D = B + (A - C)*x
-                const pesoR = pesoL + (caixasL - caixasR) * jogo.pesoCaixa;
-
-                // Salva no estado
-                const ladoEsquerdaMaior = Math.random() > 0.5;
-                if (ladoEsquerdaMaior) {
-                    jogo.ladoEsquerdo.caixas = caixasL;
-                    jogo.ladoEsquerdo.pesos = [pesoL];
-                    
-                    jogo.ladoDireito.caixas = caixasR;
-                    jogo.ladoDireito.pesos = [pesoR];
-                    
-                    jogo.equacaoCorreta = `${caixasL}x + ${pesoL} = ${caixasR === 1 ? 'x' : caixasR + 'x'} + ${pesoR}`;
-                } else {
-                    jogo.ladoEsquerdo.caixas = caixasR;
-                    jogo.ladoEsquerdo.pesos = [pesoR];
-                    
-                    jogo.ladoDireito.caixas = caixasL;
-                    jogo.ladoDireito.pesos = [pesoL];
-                    
-                    jogo.equacaoCorreta = `${caixasR === 1 ? 'x' : caixasR + 'x'} + ${pesoR} = ${caixasL}x + ${pesoL}`;
-                }
-            }
+            // Adiciona a equação no histórico para não repetir
+            jogo.historicoEquacoes.push(jogo.equacaoCorreta);
 
             desenharBalanca();
             montarAlternativas();
