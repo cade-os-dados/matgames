@@ -602,6 +602,21 @@
             border-color: var(--text-secondary);
         }
 
+        /* Botão Verificar Erros */
+        .btn-action-errors {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-action-errors:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -8px rgba(239, 68, 68, 0.3);
+        }
+
         /* Botão Sair/Voltar para o Gameplay */
         .btn-back-menu {
             margin-top: 10px;
@@ -621,11 +636,191 @@
             color: var(--text-primary);
         }
 
+        /* ---------------- TELA DE REVISÃO DE ERROS ---------------- */
+        #review-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 5px;
+        }
+
+        .btn-review-back {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .btn-review-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        .review-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .review-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: -10px;
+        }
+
+        .review-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            transition: var(--transition-smooth);
+        }
+
+        .review-card:hover {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .review-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .review-round-badge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .review-error-type {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .review-canvas-container {
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .review-canvas-container canvas {
+            display: block;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 460px;
+            height: auto;
+        }
+
+        .review-answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .review-answer-block {
+            padding: 12px 14px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .review-answer-block.user-answer {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .review-answer-block.correct-answer {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .review-answer-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .review-answer-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .review-answer-block.user-answer .review-answer-value {
+            color: #f87171;
+        }
+
+        .review-answer-block.correct-answer .review-answer-value {
+            color: #34d399;
+        }
+
+        .review-no-errors {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .review-no-errors .review-no-errors-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
         /* Animações e Efeitos */
         @keyframes pulseGlow {
             0% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.15); }
             50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.35); }
             100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.15); }
+        }
+
+        @keyframes reviewCardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .review-card {
+            animation: reviewCardFadeIn 0.4s ease-out backwards;
         }
 
         /* Ajustes para Celular (Mobile UI) */
@@ -642,6 +837,14 @@
                 padding: 10px 16px;
                 border-radius: 12px;
                 width: 100%;
+            }
+
+            .review-answers {
+                grid-template-columns: 1fr;
+            }
+
+            .review-title {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -783,6 +986,31 @@
                 <button class="btn-action btn-action-primary" onclick="jogarNovamente()">Jogar Novamente</button>
                 <button class="btn-action btn-action-secondary" onclick="voltarMenuPrincipal()">Menu Principal</button>
             </div>
+
+            <!-- Botão Verificar Erros -->
+            <button id="btn-verificar-erros" class="btn-action btn-action-errors" onclick="mostrarRevisaoErros()" style="width:100%;max-width:420px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;vertical-align:middle;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                Verificar Erros
+            </button>
+        </div>
+
+        <!-- ================= TELA 4: REVISÃO DE ERROS ================= -->
+        <div id="review-screen" class="hidden">
+            <div class="review-header">
+                <button class="btn-review-back" onclick="voltarParaSummary()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+                <div class="review-title">Revisão de Erros</div>
+            </div>
+            <div class="review-subtitle" id="review-subtitle">Confira as questões que você errou</div>
+            <div id="review-cards-container"></div>
         </div>
 
     </div>
@@ -829,7 +1057,15 @@
             equacoesCertasPrimeira: 0,
             valoresCertoPrimeira: 0,
             errosRodada: 0,
-            errosTotais: 0
+            errosTotais: 0,
+            
+            // Histórico de erros para revisão
+            historicoErros: [],
+            // Rastreia respostas do usuário na rodada
+            respostaEquacaoUsuario: null,
+            respostaValorUsuario: null,
+            erroEquacaoNaRodada: false,
+            erroValorNaRodada: false
         };
 
         // Inicia o jogo a partir do menu principal
@@ -841,6 +1077,7 @@
             jogo.valoresCertoPrimeira = 0;
             jogo.errosTotais = 0;
             jogo.historicoEquacoes = [];
+            jogo.historicoErros = [];
             
             // Atualiza visual do HUD de nível
             const niveisTextos = { 1: "Fácil", 2: "Médio", 3: "Difícil" };
@@ -904,6 +1141,10 @@
             jogo.primeiraTentativaEquacao = true;
             jogo.primeiraTentativaValor = true;
             jogo.errosRodada = 0;
+            jogo.respostaEquacaoUsuario = null;
+            jogo.respostaValorUsuario = null;
+            jogo.erroEquacaoNaRodada = false;
+            jogo.erroValorNaRodada = false;
             
             ocultarFeedback();
             elInputResposta.value = "";
@@ -1299,6 +1540,12 @@
                 jogo.errosRodada++;
                 jogo.errosTotais++;
                 
+                // Registra primeiro erro de equação na rodada
+                if (!jogo.erroEquacaoNaRodada) {
+                    jogo.respostaEquacaoUsuario = escolhida;
+                    jogo.erroEquacaoNaRodada = true;
+                }
+                
                 // Reduz pontos por erro sutilmente
                 jogo.pontos = Math.max(0, jogo.pontos - 3);
                 elScoreVal.textContent = jogo.pontos;
@@ -1354,6 +1601,12 @@
                 jogo.errosRodada++;
                 jogo.errosTotais++;
                 
+                // Registra primeiro erro de valor na rodada
+                if (!jogo.erroValorNaRodada) {
+                    jogo.respostaValorUsuario = respUsuario;
+                    jogo.erroValorNaRodada = true;
+                }
+                
                 jogo.pontos = Math.max(0, jogo.pontos - 4);
                 elScoreVal.textContent = jogo.pontos;
             }
@@ -1361,6 +1614,21 @@
 
         // Gerencia avanço para o próximo desafio ou fim do jogo
         function proximoDesafio() {
+            // Salva dados da rodada se houve erros
+            if (jogo.erroEquacaoNaRodada || jogo.erroValorNaRodada) {
+                jogo.historicoErros.push({
+                    rodada: jogo.rodadaAtual,
+                    ladoEsquerdo: { caixas: jogo.ladoEsquerdo.caixas, pesos: [...jogo.ladoEsquerdo.pesos] },
+                    ladoDireito: { caixas: jogo.ladoDireito.caixas, pesos: [...jogo.ladoDireito.pesos] },
+                    equacaoCorreta: jogo.equacaoCorreta,
+                    pesoCaixa: jogo.pesoCaixa,
+                    erroEquacao: jogo.erroEquacaoNaRodada,
+                    erroValor: jogo.erroValorNaRodada,
+                    respostaEquacaoUsuario: jogo.respostaEquacaoUsuario,
+                    respostaValorUsuario: jogo.respostaValorUsuario
+                });
+            }
+            
             if (jogo.rodadaAtual >= jogo.maxRodadas) {
                 finalizarJogo();
             } else {
@@ -1422,6 +1690,23 @@
                     svg.classList.remove('filled');
                 }
             });
+            
+            // Mostra/oculta botão de verificar erros
+            const btnVerificarErros = document.getElementById('btn-verificar-erros');
+            if (jogo.historicoErros.length > 0) {
+                btnVerificarErros.classList.remove('hidden');
+                btnVerificarErros.textContent = '';
+                btnVerificarErros.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;vertical-align:middle;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Verificar Erros (${jogo.historicoErros.length})
+                `;
+            } else {
+                btnVerificarErros.classList.add('hidden');
+            }
         }
 
         // Funções do Menu / Ações de Encerramento
@@ -1432,6 +1717,7 @@
         function voltarMenuPrincipal() {
             elSummaryScreen.classList.add('hidden');
             elGameplayArea.classList.add('hidden');
+            document.getElementById('review-screen').classList.add('hidden');
             elStartMenu.classList.remove('hidden');
         }
 
@@ -1451,6 +1737,274 @@
         function ocultarFeedback() {
             elFeedback.textContent = "";
             elFeedback.className = "";
+        }
+
+        // Mostra a tela de revisão de erros
+        function mostrarRevisaoErros() {
+            elSummaryScreen.classList.add('hidden');
+            const elReviewScreen = document.getElementById('review-screen');
+            elReviewScreen.classList.remove('hidden');
+            
+            const container = document.getElementById('review-cards-container');
+            const subtitle = document.getElementById('review-subtitle');
+            container.innerHTML = '';
+            
+            if (jogo.historicoErros.length === 0) {
+                subtitle.textContent = 'Nenhum erro encontrado!';
+                container.innerHTML = `
+                    <div class="review-no-errors">
+                        <span class="review-no-errors-icon">🎉</span>
+                        Parabéns! Você acertou todas as questões!
+                    </div>
+                `;
+                return;
+            }
+            
+            const plural = jogo.historicoErros.length === 1 ? 'questão com erro' : 'questões com erros';
+            subtitle.textContent = `${jogo.historicoErros.length} ${plural} encontrada${jogo.historicoErros.length > 1 ? 's' : ''}`;
+            
+            jogo.historicoErros.forEach((erro, index) => {
+                const card = document.createElement('div');
+                card.className = 'review-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                // Determina o tipo de erro para exibição
+                let tipoErroTexto = '';
+                if (erro.erroEquacao && erro.erroValor) {
+                    tipoErroTexto = 'Equação + Valor';
+                } else if (erro.erroEquacao) {
+                    tipoErroTexto = 'Equação incorreta';
+                } else {
+                    tipoErroTexto = 'Valor incorreto';
+                }
+                
+                // Cria o canvas para a balança
+                const canvasId = `review-canvas-${index}`;
+                
+                let answersHTML = '';
+                
+                if (erro.erroEquacao) {
+                    answersHTML += `
+                        <div class="review-answers" style="margin-bottom: ${erro.erroValor ? '10px' : '0'}">
+                            <div class="review-answer-block user-answer">
+                                <div class="review-answer-label">Sua equação</div>
+                                <div class="review-answer-value">${erro.respostaEquacaoUsuario}</div>
+                            </div>
+                            <div class="review-answer-block correct-answer">
+                                <div class="review-answer-label">Equação correta</div>
+                                <div class="review-answer-value">${erro.equacaoCorreta}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (erro.erroValor) {
+                    answersHTML += `
+                        <div class="review-answers">
+                            <div class="review-answer-block user-answer">
+                                <div class="review-answer-label">Sua resposta</div>
+                                <div class="review-answer-value">x = ${erro.respostaValorUsuario}kg</div>
+                            </div>
+                            <div class="review-answer-block correct-answer">
+                                <div class="review-answer-label">Resposta correta</div>
+                                <div class="review-answer-value">x = ${erro.pesoCaixa}kg</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                card.innerHTML = `
+                    <div class="review-card-header">
+                        <span class="review-round-badge">Rodada ${erro.rodada}</span>
+                        <span class="review-error-type">${tipoErroTexto}</span>
+                    </div>
+                    <div class="review-canvas-container">
+                        <canvas id="${canvasId}" width="500" height="220"></canvas>
+                    </div>
+                    ${answersHTML}
+                `;
+                
+                container.appendChild(card);
+                
+                // Desenha a balança neste canvas
+                desenharBalancaNoCanvas(document.getElementById(canvasId), erro.ladoEsquerdo, erro.ladoDireito);
+            });
+        }
+        
+        // Desenha a balança em um canvas arbitrário (reutiliza a lógica de desenho)
+        function desenharBalancaNoCanvas(canvasEl, ladoEsq, ladoDir) {
+            const c = canvasEl.getContext('2d');
+            
+            c.clearRect(0, 0, canvasEl.width, canvasEl.height);
+            
+            // Fundo escuro sutil
+            c.fillStyle = "rgba(30, 41, 59, 0.4)";
+            c.fillRect(0, 0, canvasEl.width, canvasEl.height);
+
+            // Suporte/Base da balança
+            c.fillStyle = "#475569";
+            c.beginPath();
+            c.moveTo(215, 205);
+            c.lineTo(285, 205);
+            c.lineTo(260, 115);
+            c.lineTo(240, 115);
+            c.closePath();
+            c.fill();
+            
+            // Pézinho da base
+            c.fillStyle = "#334155";
+            c.fillRect(200, 205, 100, 7);
+            
+            // Travessão da Balança (Viga central azul neon)
+            c.strokeStyle = "#4f46e5";
+            c.lineWidth = 6;
+            c.lineCap = "round";
+            c.beginPath();
+            c.moveTo(90, 115);
+            c.lineTo(410, 115);
+            c.stroke();
+            
+            // Pivot / Ponto central brilhante
+            c.fillStyle = "#6366f1";
+            c.beginPath();
+            c.arc(250, 115, 7, 0, Math.PI * 2);
+            c.fill();
+            c.strokeStyle = "#818cf8";
+            c.lineWidth = 2;
+            c.stroke();
+
+            // Cordas/Suportes dos pratos
+            c.lineWidth = 1.5;
+            c.strokeStyle = "rgba(148, 163, 184, 0.6)";
+            
+            // Esquerdo
+            c.beginPath();
+            c.moveTo(90, 115);
+            c.lineTo(55, 160);
+            c.moveTo(90, 115);
+            c.lineTo(125, 160);
+            c.stroke();
+            
+            // Direito
+            c.beginPath();
+            c.moveTo(410, 115);
+            c.lineTo(375, 160);
+            c.moveTo(410, 115);
+            c.lineTo(445, 160);
+            c.stroke();
+
+            // Pratos da balança
+            c.fillStyle = "#64748b";
+            c.fillRect(45, 160, 90, 7);
+            c.fillRect(365, 160, 90, 7);
+            
+            // Desenhar elementos de cada lado
+            renderizarConteudoPratoNoCanvas(c, 90, 155, ladoEsq);
+            renderizarConteudoPratoNoCanvas(c, 410, 155, ladoDir);
+        }
+        
+        // Renderiza conteúdo de prato em um canvas arbitrário
+        function renderizarConteudoPratoNoCanvas(c, xCentro, yBase, prato) {
+            const tamCaixa = 22;
+            const largPeso = 24;
+            const altPeso = 25;
+            const gap = 3;
+            
+            const numCaixas = prato.caixas;
+            const pesos = prato.pesos;
+            
+            const larguraCaixas = numCaixas > 0 ? (numCaixas * tamCaixa) + ((numCaixas - 1) * gap) : 0;
+            const larguraPesos = pesos.length > 0 ? (pesos.length * largPeso) + ((pesos.length - 1) * gap) : 0;
+            
+            let totalLargura = larguraCaixas + larguraPesos;
+            if (larguraCaixas > 0 && larguraPesos > 0) {
+                totalLargura += gap * 2;
+            }
+            
+            let atualX = xCentro - (totalLargura / 2);
+            
+            // 1. Desenha as caixas
+            for (let i = 0; i < numCaixas; i++) {
+                desenharCaixaNoCanvas(c, atualX, yBase - tamCaixa, tamCaixa);
+                atualX += tamCaixa + gap;
+            }
+            
+            if (larguraCaixas > 0 && larguraPesos > 0) {
+                atualX += gap * 2;
+            }
+            
+            // 2. Desenha os pesos
+            pesos.forEach(val => {
+                desenharPesoMetalNoCanvas(c, atualX, yBase - altPeso, largPeso, altPeso, val);
+                atualX += largPeso + gap;
+            });
+        }
+        
+        // Desenha caixa em canvas arbitrário
+        function desenharCaixaNoCanvas(c, x, y, tam) {
+            let grad = c.createLinearGradient(x, y, x + tam, y + tam);
+            grad.addColorStop(0, "#f59e0b");
+            grad.addColorStop(1, "#d97706");
+            
+            c.fillStyle = grad;
+            c.fillRect(x, y, tam, tam);
+            
+            c.strokeStyle = "#b45309";
+            c.lineWidth = 1.5;
+            c.strokeRect(x, y, tam, tam);
+            
+            c.fillStyle = "rgba(255, 255, 255, 0.15)";
+            c.fillRect(x + (tam/2) - 3, y, 6, tam);
+            
+            c.fillStyle = "#ffffff";
+            c.font = "bold 13px 'Outfit', sans-serif";
+            c.textAlign = "center";
+            c.textBaseline = "middle";
+            c.fillText("x", x + tam/2, y + tam/2 + 0.5);
+        }
+        
+        // Desenha peso metálico em canvas arbitrário
+        function desenharPesoMetalNoCanvas(c, x, y, larg, alt, valor) {
+            let grad = c.createLinearGradient(x, y, x + larg, y + alt);
+            grad.addColorStop(0, "#0891b2");
+            grad.addColorStop(1, "#0e7490");
+            
+            c.fillStyle = grad;
+            c.beginPath();
+            c.moveTo(x + 4, y);
+            c.lineTo(x + larg - 4, y);
+            c.lineTo(x + larg, y + alt);
+            c.lineTo(x, y + alt);
+            c.closePath();
+            c.fill();
+            
+            c.strokeStyle = "#0891b2";
+            c.lineWidth = 2.5;
+            c.beginPath();
+            c.arc(x + larg/2, y, larg/4, Math.PI, 0);
+            c.stroke();
+
+            c.strokeStyle = "#155e75";
+            c.lineWidth = 1;
+            c.beginPath();
+            c.moveTo(x + 4, y);
+            c.lineTo(x + larg - 4, y);
+            c.lineTo(x + larg, y + alt);
+            c.lineTo(x, y + alt);
+            c.closePath();
+            c.stroke();
+
+            c.fillStyle = "#ffffff";
+            c.font = "bold 9px 'Outfit', sans-serif";
+            c.textAlign = "center";
+            c.textBaseline = "middle";
+            c.fillText(`${valor}`, x + larg/2, y + alt/2 + 2);
+        }
+        
+        // Volta da revisão de erros para o resumo
+        function voltarParaSummary() {
+            document.getElementById('review-screen').classList.add('hidden');
+            elSummaryScreen.classList.remove('hidden');
         }
 
         // Captura tecla Enter no input da Fase 2
