@@ -788,6 +788,83 @@
             color: #34d399;
         }
 
+        /* Novas classes para a listagem detalhada de erros */
+        .review-attempts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .review-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .review-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 6px;
+        }
+
+        .review-attempts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .review-attempt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .review-attempt-item.incorrect {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+
+        .review-attempt-item.correct {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .attempt-number {
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0.85;
+            text-transform: uppercase;
+        }
+
+        .attempt-val {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        #attempts-val {
+            color: #10b981;
+            transition: color 0.3s ease;
+        }
+
+        #attempts-val.warning {
+            color: #f59e0b;
+        }
+
+        #attempts-val.danger {
+            color: #ef4444;
+        }
+
         .review-no-errors {
             text-align: center;
             padding: 40px 20px;
@@ -907,6 +984,10 @@
                 <div class="hud-item" id="score-indicator">
                     <span class="hud-label">Pontos:</span>
                     <span class="hud-value" id="score-val">0</span>
+                </div>
+                <div class="hud-item" id="attempts-indicator">
+                    <span class="hud-label" id="attempts-label">Tentativas 🧠</span>
+                    <span class="hud-value" id="attempts-val">3</span>
                 </div>
             </div>
             
@@ -1034,6 +1115,8 @@
         const elRoundVal = document.getElementById('round-val');
         const elScoreVal = document.getElementById('score-val');
         const elInputResposta = document.getElementById('input-resposta');
+        const elAttemptsLabel = document.getElementById('attempts-label');
+        const elAttemptsVal = document.getElementById('attempts-val');
 
         // Estado do jogo
         let jogo = {
@@ -1050,6 +1133,12 @@
             ladoDireito: { caixas: 0, pesos: [] },
             
             equacaoCorreta: "",
+            
+            // Controle de tentativas por fase na rodada
+            tentativasEquacaoRestantes: 3,
+            tentativasValorRestantes: 3,
+            errosEquacaoRodada: [], // Guarda as strings das equações erradas tentadas na rodada
+            errosValorRodada: [],   // Guarda os números dos valores de X errados tentados na rodada
             
             // Estatísticas para a tela final
             primeiraTentativaEquacao: true,
@@ -1145,6 +1234,18 @@
             jogo.respostaValorUsuario = null;
             jogo.erroEquacaoNaRodada = false;
             jogo.erroValorNaRodada = false;
+            
+            // Inicializa novas variáveis de controle de tentativas da rodada
+            jogo.tentativasEquacaoRestantes = 3;
+            jogo.tentativasValorRestantes = 3;
+            jogo.errosEquacaoRodada = [];
+            jogo.errosValorRodada = [];
+            
+            if (elAttemptsLabel && elAttemptsVal) {
+                elAttemptsLabel.textContent = "Tentativas 🧠";
+                elAttemptsVal.textContent = "3";
+                elAttemptsVal.className = "hud-value";
+            }
             
             ocultarFeedback();
             elInputResposta.value = "";
@@ -1530,17 +1631,29 @@
                 }
                 elScoreVal.textContent = jogo.pontos;
                 
+                // Desabilita os botões para evitar cliques extras durante a transição
+                const btns = elFaseEquacao.querySelectorAll('button');
+                btns.forEach(b => {
+                    b.disabled = true;
+                    if (b.textContent === escolhida) {
+                        b.style.border = "2px solid #10b981";
+                        b.style.background = "rgba(16, 185, 129, 0.15)";
+                        b.style.color = "#34d399";
+                    }
+                });
+                
                 // Aguarda 1.5 segundos para passar para a Fase 2
                 setTimeout(() => {
                     iniciarFaseResposta();
                 }, 1300);
             } else {
-                mostrarFeedback("Essa equação não representa o equilíbrio físico da balança. Analise novamente!", "errado");
+                // Registra o erro na lista da rodada
+                jogo.errosEquacaoRodada.push(escolhida);
                 jogo.primeiraTentativaEquacao = false;
                 jogo.errosRodada++;
                 jogo.errosTotais++;
                 
-                // Registra primeiro erro de equação na rodada
+                // Registra primeiro erro de equação na rodada (retrocompatibilidade)
                 if (!jogo.erroEquacaoNaRodada) {
                     jogo.respostaEquacaoUsuario = escolhida;
                     jogo.erroEquacaoNaRodada = true;
@@ -1549,6 +1662,58 @@
                 // Reduz pontos por erro sutilmente
                 jogo.pontos = Math.max(0, jogo.pontos - 3);
                 elScoreVal.textContent = jogo.pontos;
+                
+                jogo.tentativasEquacaoRestantes--;
+                
+                if (jogo.tentativasEquacaoRestantes === 0) {
+                    mostrarFeedback(`Você esgotou as 3 tentativas na equação! A correta era: ${jogo.equacaoCorreta}`, "errado");
+                    
+                    // Desabilita e colore botões
+                    const btns = elFaseEquacao.querySelectorAll('button');
+                    btns.forEach(b => {
+                        b.disabled = true;
+                        if (b.textContent === jogo.equacaoCorreta) {
+                            b.style.border = "2px solid #10b981";
+                            b.style.background = "rgba(16, 185, 129, 0.15)";
+                            b.style.color = "#34d399";
+                        }
+                        if (jogo.errosEquacaoRodada.includes(b.textContent)) {
+                            b.style.border = "2px solid #ef4444";
+                            b.style.background = "rgba(239, 68, 68, 0.15)";
+                            b.style.color = "#f87171";
+                        }
+                    });
+                    
+                    if (elAttemptsVal) {
+                        elAttemptsVal.textContent = "0";
+                        elAttemptsVal.className = "hud-value danger";
+                    }
+                    
+                    // Exibe botão para ir direto ao próximo desafio
+                    elBtnProximo.classList.remove('hidden');
+                } else {
+                    mostrarFeedback("Essa equação não representa o equilíbrio físico da balança. Analise novamente!", "errado");
+                    
+                    if (elAttemptsVal) {
+                        elAttemptsVal.textContent = jogo.tentativasEquacaoRestantes;
+                        if (jogo.tentativasEquacaoRestantes === 2) {
+                            elAttemptsVal.className = "hud-value warning";
+                        } else {
+                            elAttemptsVal.className = "hud-value danger";
+                        }
+                    }
+                    
+                    // Colore o botão desabilitado que acabou de ser clicado
+                    const btns = elFaseEquacao.querySelectorAll('button');
+                    btns.forEach(b => {
+                        if (b.textContent === escolhida) {
+                            b.disabled = true;
+                            b.style.border = "2px solid #ef4444";
+                            b.style.background = "rgba(239, 68, 68, 0.08)";
+                            b.style.color = "#f87171";
+                        }
+                    });
+                }
             }
         }
 
@@ -1562,8 +1727,19 @@
             
             elInstrucao.innerHTML = `Fase 2: Sabendo que a equação é <b>${jogo.equacaoCorreta}</b><br>qual é o peso individual de cada caixa (x)?`;
             
+            // Reabilita elementos se estiverem desabilitados
+            elInputResposta.disabled = false;
+            const btnSubmit = elFaseResposta.querySelector('.btn-submit');
+            if (btnSubmit) btnSubmit.disabled = false;
+            
             elInputResposta.value = "";
             elInputResposta.focus();
+            
+            if (elAttemptsLabel && elAttemptsVal) {
+                elAttemptsLabel.textContent = "Tentativas ✍";
+                elAttemptsVal.textContent = jogo.tentativasValorRestantes;
+                elAttemptsVal.className = "hud-value";
+            }
         }
 
         // Verifica a resposta da Fase 2 (Valor numérico de X)
@@ -1586,22 +1762,23 @@
                 }
                 elScoreVal.textContent = jogo.pontos;
                 
-                elFaseResposta.classList.add('hidden');
-                elBtnProximo.classList.remove('hidden');
-            } else {
-                let dica = "Incorreto. ";
-                if (jogo.nivelDificuldade === 1 || jogo.nivelDificuldade === 2) {
-                    dica += "Dica: divida o valor total dos pesos pela quantidade de caixas!";
-                } else {
-                    dica += "Dica: isole os 'x' subtraindo a menor quantidade de ambos os lados, e faça o mesmo com os pesos!";
-                }
+                // Desabilita input e botão
+                elInputResposta.disabled = true;
+                const btnSubmit = elFaseResposta.querySelector('.btn-submit');
+                if (btnSubmit) btnSubmit.disabled = true;
                 
-                mostrarFeedback(dica, "errado");
+                setTimeout(() => {
+                    elFaseResposta.classList.add('hidden');
+                    elBtnProximo.classList.remove('hidden');
+                }, 1300);
+            } else {
+                // Registra o erro na lista da rodada
+                jogo.errosValorRodada.push(respUsuario);
                 jogo.primeiraTentativaValor = false;
                 jogo.errosRodada++;
                 jogo.errosTotais++;
                 
-                // Registra primeiro erro de valor na rodada
+                // Registra primeiro erro de valor na rodada (retrocompatibilidade)
                 if (!jogo.erroValorNaRodada) {
                     jogo.respostaValorUsuario = respUsuario;
                     jogo.erroValorNaRodada = true;
@@ -1609,21 +1786,60 @@
                 
                 jogo.pontos = Math.max(0, jogo.pontos - 4);
                 elScoreVal.textContent = jogo.pontos;
+                
+                jogo.tentativasValorRestantes--;
+                
+                if (jogo.tentativasValorRestantes === 0) {
+                    mostrarFeedback(`Você esgotou as 3 tentativas! O peso correto de cada caixa x era: ${jogo.pesoCaixa}kg.`, "errado");
+                    
+                    // Desabilita input e botão
+                    elInputResposta.disabled = true;
+                    const btnSubmit = elFaseResposta.querySelector('.btn-submit');
+                    if (btnSubmit) btnSubmit.disabled = true;
+                    
+                    if (elAttemptsVal) {
+                        elAttemptsVal.textContent = "0";
+                        elAttemptsVal.className = "hud-value danger";
+                    }
+                    
+                    // Exibe o botão de avançar para a próxima rodada
+                    elBtnProximo.classList.remove('hidden');
+                } else {
+                    let dica = "Incorreto. ";
+                    if (jogo.nivelDificuldade === 1 || jogo.nivelDificuldade === 2) {
+                        dica += "Dica: divida o valor total dos pesos pela quantidade de caixas!";
+                    } else {
+                        dica += "Dica: isole os 'x' subtraindo a menor quantidade de ambos os lados, e faça o mesmo com os pesos!";
+                    }
+                    
+                    mostrarFeedback(dica, "errado");
+                    
+                    if (elAttemptsVal) {
+                        elAttemptsVal.textContent = jogo.tentativasValorRestantes;
+                        if (jogo.tentativasValorRestantes === 2) {
+                            elAttemptsVal.className = "hud-value warning";
+                        } else {
+                            elAttemptsVal.className = "hud-value danger";
+                        }
+                    }
+                }
             }
         }
 
         // Gerencia avanço para o próximo desafio ou fim do jogo
         function proximoDesafio() {
             // Salva dados da rodada se houve erros
-            if (jogo.erroEquacaoNaRodada || jogo.erroValorNaRodada) {
+            if (jogo.errosEquacaoRodada.length > 0 || jogo.errosValorRodada.length > 0) {
                 jogo.historicoErros.push({
                     rodada: jogo.rodadaAtual,
                     ladoEsquerdo: { caixas: jogo.ladoEsquerdo.caixas, pesos: [...jogo.ladoEsquerdo.pesos] },
                     ladoDireito: { caixas: jogo.ladoDireito.caixas, pesos: [...jogo.ladoDireito.pesos] },
                     equacaoCorreta: jogo.equacaoCorreta,
                     pesoCaixa: jogo.pesoCaixa,
-                    erroEquacao: jogo.erroEquacaoNaRodada,
-                    erroValor: jogo.erroValorNaRodada,
+                    erroEquacao: jogo.errosEquacaoRodada.length > 0,
+                    erroValor: jogo.errosValorRodada.length > 0,
+                    errosEquacao: [...jogo.errosEquacaoRodada],
+                    errosValor: [...jogo.errosValorRodada],
                     respostaEquacaoUsuario: jogo.respostaEquacaoUsuario,
                     respostaValorUsuario: jogo.respostaValorUsuario
                 });
@@ -1702,7 +1918,7 @@
                         <line x1="12" y1="8" x2="12" y2="12"></line>
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
-                    Verificar Erros (${jogo.historicoErros.length})
+                    Verificar Erros (${jogo.historicoErros.length} rodadas)
                 `;
             } else {
                 btnVerificarErros.classList.add('hidden');
@@ -1768,50 +1984,78 @@
                 card.className = 'review-card';
                 card.style.animationDelay = `${index * 0.1}s`;
                 
-                // Determina o tipo de erro para exibição
+                // Determina o tipo de erro para exibição com contador detalhado de erros
                 let tipoErroTexto = '';
+                const errosEqQtd = erro.errosEquacao ? erro.errosEquacao.length : 0;
+                const errosValQtd = erro.errosValor ? erro.errosValor.length : 0;
+                const totalErrosRodada = errosEqQtd + errosValQtd;
+                
                 if (erro.erroEquacao && erro.erroValor) {
-                    tipoErroTexto = 'Equação + Valor';
+                    tipoErroTexto = `${totalErrosRodada} erros (Equação + X)`;
                 } else if (erro.erroEquacao) {
-                    tipoErroTexto = 'Equação incorreta';
+                    tipoErroTexto = errosEqQtd >= 3 ? '3 erros na Equação (Pulou Rodada)' : `${errosEqQtd} ${errosEqQtd === 1 ? 'erro' : 'erros'} na Equação`;
                 } else {
-                    tipoErroTexto = 'Valor incorreto';
+                    tipoErroTexto = errosValQtd >= 3 ? '3 erros no X (Pulou Rodada)' : `${errosValQtd} ${errosValQtd === 1 ? 'erro' : 'erros'} no X`;
                 }
                 
                 // Cria o canvas para a balança
                 const canvasId = `review-canvas-${index}`;
                 
-                let answersHTML = '';
+                let answersHTML = '<div class="review-attempts-container">';
                 
-                if (erro.erroEquacao) {
-                    answersHTML += `
-                        <div class="review-answers" style="margin-bottom: ${erro.erroValor ? '10px' : '0'}">
-                            <div class="review-answer-block user-answer">
-                                <div class="review-answer-label">Sua equação</div>
-                                <div class="review-answer-value">${erro.respostaEquacaoUsuario}</div>
+                // 1. Detalhamento de erros de Equação
+                if (erro.erroEquacao && erro.errosEquacao && erro.errosEquacao.length > 0) {
+                    let attemptsListHTML = '';
+                    erro.errosEquacao.forEach((tentativa, idx) => {
+                        attemptsListHTML += `
+                            <div class="review-attempt-item incorrect">
+                                <span class="attempt-number">Tentativa ${idx + 1}:</span>
+                                <span class="attempt-val">${tentativa}</span>
                             </div>
-                            <div class="review-answer-block correct-answer">
-                                <div class="review-answer-label">Equação correta</div>
-                                <div class="review-answer-value">${erro.equacaoCorreta}</div>
+                        `;
+                    });
+                    
+                    answersHTML += `
+                        <div class="review-section">
+                            <div class="review-section-title">Formular Equação</div>
+                            <div class="review-attempts-list">
+                                ${attemptsListHTML}
+                                <div class="review-attempt-item correct">
+                                    <span class="attempt-number">Equação Correta:</span>
+                                    <span class="attempt-val">${erro.equacaoCorreta}</span>
+                                </div>
                             </div>
                         </div>
                     `;
                 }
                 
-                if (erro.erroValor) {
-                    answersHTML += `
-                        <div class="review-answers">
-                            <div class="review-answer-block user-answer">
-                                <div class="review-answer-label">Sua resposta</div>
-                                <div class="review-answer-value">x = ${erro.respostaValorUsuario}kg</div>
+                // 2. Detalhamento de erros de X
+                if (erro.erroValor && erro.errosValor && erro.errosValor.length > 0) {
+                    let attemptsListHTML = '';
+                    erro.errosValor.forEach((tentativa, idx) => {
+                        attemptsListHTML += `
+                            <div class="review-attempt-item incorrect">
+                                <span class="attempt-number">Tentativa ${idx + 1}:</span>
+                                <span class="attempt-val">x = ${tentativa}kg</span>
                             </div>
-                            <div class="review-answer-block correct-answer">
-                                <div class="review-answer-label">Resposta correta</div>
-                                <div class="review-answer-value">x = ${erro.pesoCaixa}kg</div>
+                        `;
+                    });
+                    
+                    answersHTML += `
+                        <div class="review-section">
+                            <div class="review-section-title">Resolver Peso de X</div>
+                            <div class="review-attempts-list">
+                                ${attemptsListHTML}
+                                <div class="review-attempt-item correct">
+                                    <span class="attempt-number">Peso Correto (x):</span>
+                                    <span class="attempt-val">x = ${erro.pesoCaixa}kg</span>
+                                </div>
                             </div>
                         </div>
                     `;
                 }
+                
+                answersHTML += '</div>';
                 
                 card.innerHTML = `
                     <div class="review-card-header">
