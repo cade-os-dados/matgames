@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Boxplot Multivariado - Estatística Escolar</title>
+    <!-- Tailwind CSS para estilização rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Plotly.js para gráficos profissionais -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans p-6">
+
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-slate-100">
+        <header class="mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-slate-900">Gerador de Boxplot Multivariado</h1>
+            <p class="text-sm text-slate-600 mt-1">Cole os dados copiados do Excel ou Planilhas Google (coluna de categoria e coluna de valores separados por Tab).</p>
+        </header>
+
+        <!-- Configurações de Títulos e Eixos -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Título do Gráfico</label>
+                <input type="text" id="chart-title" value="Comparativo Multivariado (Boxplot)" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Eixo X</label>
+                <input type="text" id="xaxis-name" value="Regiões / Categorias" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Eixo Y</label>
+                <input type="text" id="yaxis-name" value="Taxa (%)" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Cole os dados aqui (Rótulo [Tab] Valor):</label>
+                <textarea id="data-input" rows="8" class="w-full p-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Norte&#9;6&#10;Norte&#9;6.2&#10;Nordeste&#9;5.5&#10;Nordeste&#9;7.1&#10;Sul&#9;4.2&#10;Sul&#9;4.8">Norte	6
+Norte	6.2
+Norte	7.0
+Norte	5.8
+Nordeste	5.5
+Nordeste	7.1
+Nordeste	6.4
+Nordeste	5.9
+Sul	4.2
+Sul	4.8
+Sul	3.9
+Sul	5.1</textarea>
+                <button onclick="gerarGrafico()" class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition duration-200 shadow-sm">
+                    Gerar Boxplot
+                </button>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-semibold text-slate-700 mb-2">Instruções de Formatação:</h3>
+                <ul class="text-xs text-slate-600 space-y-2 list-disc pl-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <li>O formato aceito é <strong>Categoria [TAB] Valor numérico</strong>.</li>
+                    <li>Você pode selecionar duas colunas inteiras no Excel/Google Sheets e colar direto na caixa ao lado.</li>
+                    <li>O gráfico exibe a caixa estatística e isola automaticamente os <strong>outliers</strong> com base no cálculo do IQR (1.5 × Intervalo Interquartil).</li>
+                    <li>Use ponto ou vírgula para decimais (o sistema converte automaticamente).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Div onde o gráfico será renderizado -->
+        <div id="boxplot-div" class="w-full h-[500px] border border-slate-200 rounded-lg p-2 bg-white"></div>
+    </div>
+
+    <script>
+        function gerarGrafico() {
+            const rawText = document.getElementById('data-input').value.trim();
+            const chartTitle = document.getElementById('chart-title').value;
+            const xaxisName = document.getElementById('xaxis-name').value;
+            const yaxisName = document.getElementById('yaxis-name').value;
+
+            if (!rawText) {
+                alert('Por favor, insira os dados.');
+                return;
+            }
+
+            const lines = rawText.split('\n');
+            const groups = {};
+
+            for (let line of lines) {
+                let parts = line.split('\t');
+                if (parts.length < 2) {
+                    parts = line.split(/[\s,]+/); 
+                }
+                if (parts.length >= 2) {
+                    const label = parts[0].trim();
+                    const valStr = parts[1].trim().replace(',', '.');
+                    const val = parseFloat(valStr);
+
+                    if (label && !isNaN(val)) {
+                        if (!groups[label]) {
+                            groups[label] = [];
+                        }
+                        groups[label].push(val);
+                    }
+                }
+            }
+
+            const categories = Object.keys(groups);
+            if (categories.length === 0) {
+                alert('Nenhum dado válido encontrado. Verifique o formato.');
+                return;
+            }
+
+            const dataTraces = [];
+
+            categories.forEach(cat => {
+                const values = groups[cat];
+                
+                // boxpoints: 'outliers' plota apenas a caixa padrão e os pontos fora da regra de 1.5 * IQR
+                dataTraces.push({
+                    y: values,
+                    type: 'box',
+                    name: cat,
+                    boxpoints: 'outliers' 
+                });
+            });
+
+            const layout = {
+                title: { text: chartTitle, font: { size: 16 } },
+                yaxis: { title: yaxisName },
+                xaxis: { title: xaxisName },
+                showlegend: false,
+                margin: { t: 40, b: 50, l: 60, r: 20 }
+            };
+
+            Plotly.newPlot('boxplot-div', dataTraces, layout, {responsive: true});
+        }
+
+        window.onload = function() {
+            gerarGrafico();
+        };
+    </script>
+</body>
+</html>
