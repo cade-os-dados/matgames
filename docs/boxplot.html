@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boxplot e Diagrama de Ramo e Folhas</title>
+    <title>Boxplot, Ramos e Folhas e Gráfico de Barras</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Plotly.js para gráficos interativos -->
@@ -15,20 +15,23 @@
         
         <!-- Cabeçalho -->
         <header class="bg-slate-900 text-white p-6 border-b border-slate-800">
-            <h1 class="text-2xl font-bold">Visualização de Dados</h1>
-            <p class="text-sm text-slate-300 mt-1">Siga as instruções abaixo para exibir seu gráfico. Mude de aba para selecionar o tipo de gráfico desejado</p>
+            <h1 class="text-2xl font-bold">Visualização de Dados Estatísticos</h1>
+            <p class="text-sm text-slate-300 mt-1">Utilize as abas abaixo para alternar entre os tipos de gráficos e análises.</p>
         </header>
 
         <!-- Navegação por Abas -->
-        <div class="flex border-b border-slate-200 bg-slate-100/80">
-            <button id="tab-btn-1" onclick="switchTab(1)" class="tab-btn flex-1 py-3.5 px-4 text-center font-medium text-sm transition-colors duration-200 text-blue-600 border-b-2 border-blue-600 bg-white shadow-sm">
-                1. Boxplot Simples (Horizontal)
+        <div class="flex flex-wrap border-b border-slate-200 bg-slate-100/80">
+            <button id="tab-btn-1" onclick="switchTab(1)" class="tab-btn flex-1 min-w-[200px] py-3.5 px-4 text-center font-medium text-sm transition-colors duration-200 text-blue-600 border-b-2 border-blue-600 bg-white shadow-sm">
+                1. Boxplot Simples
             </button>
-            <button id="tab-btn-2" onclick="switchTab(2)" class="tab-btn flex-1 py-3.5 px-4 text-center font-medium text-sm transition-colors duration-200 text-slate-600 hover:text-slate-900 border-b-2 border-transparent">
-                2. Boxplot Multivariado (Categorias)
+            <button id="tab-btn-2" onclick="switchTab(2)" class="tab-btn flex-1 min-w-[200px] py-3.5 px-4 text-center font-medium text-sm transition-colors duration-200 text-slate-600 hover:text-slate-900 border-b-2 border-transparent">
+                2. Boxplot Multivariado
             </button>
-            <button id="tab-btn-3" onclick="switchTab(3)" class="tab-btn flex-1 py-3.5 px-4 text-center font-medium text-sm transition-colors duration-200 text-slate-600 hover:text-slate-900 border-b-2 border-transparent">
+            <button id="tab-btn-3" onclick="switchTab(3)" class="tab-btn flex-1 min-w-[200px] py-3.5 px-4 text-center font-medium text-sm transition-colors duration-200 text-slate-600 hover:text-slate-900 border-b-2 border-transparent">
                 3. Ramos e Folhas
+            </button>
+            <button id="tab-btn-4" onclick="switchTab(4)" class="tab-btn flex-1 min-w-[200px] py-3.5 px-4 text-center font-medium text-sm transition-colors duration-200 text-slate-600 hover:text-slate-900 border-b-2 border-transparent">
+                4. Gráfico de Barras
             </button>
         </div>
 
@@ -37,7 +40,7 @@
             <!-- ABA 1: BOXPLOT SIMPLES (HORIZONTAL) -->
             <div id="tab-content-1" class="tab-content space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <div class="md:col-span-2">
+                    <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Título do Gráfico</label>
                         <input type="text" id="simples-title" value="Distribuição Univariada" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
@@ -45,12 +48,16 @@
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Eixo (X)</label>
                         <input type="text" id="simples-xaxis" value="Taxa de Exemplo (%)" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Intervalo do Eixo X</label>
+                        <input type="number" id="simples-dtick" value="0.5" step="0.1" min="0.01" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Cole uma lista de valores numéricos:</label>
-                        <textarea id="data-input-1" rows="8" class="w-full p-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="2.1&#10;3.4&#10;1.8&#10;2.5&#10;12.0">2.1
+                        <textarea id="data-input-1" rows="8" class="w-full p-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none">2.1
 3.4
 1.8
 2.5
@@ -68,10 +75,10 @@
                     </div>
 
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-2">
-                        <h3 class="font-semibold text-slate-800 text-sm mb-1">Instruções - Boxplot Unicadeia:</h3>
-                        <p>• Insira um valor numérico por linha ou separados por espaço/vírgula.</p>
-                        <p>• O gráfico é plotado de forma <strong>horizontal</strong> com divisões de 0,5 nas marcações do eixo.</p>
-                        <p>• As estatísticas e valores no hover (mouse) estão ocultos para incentivar o cálculo manual dos alunos.</p>
+                        <h3 class="font-semibold text-slate-800 text-sm mb-1">Instruções - Boxplot Univariado:</h3>
+                        <p>• Insira os dados numéricos separados por linha ou por espaço/vírgula.</p>
+                        <p>• Ajuste o intervalo numérico do eixo X para uma melhor visualização.</p>
+                        <p>• Ao passar o mouse sob o gráfico de caixa, irá exibir os valores dos quantis e mediana, bem como os limites superior (upper fence) e inferior (lower fence).</p>
                     </div>
                 </div>
 
@@ -80,18 +87,22 @@
 
             <!-- ABA 2: BOXPLOT MULTIVARIADO (CATEGORIAS) -->
             <div id="tab-content-2" class="tab-content hidden space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Título do Gráfico</label>
                         <input type="text" id="multi-title" value="Exemplo - taxa x região" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Eixo X (Categorias)</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Eixo X</label>
                         <input type="text" id="multi-xaxis" value="Regiões IBGE" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Eixo Y (Variável)</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Eixo Y</label>
                         <input type="text" id="multi-yaxis" value="taxa de exemplo (%)" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Intervalo do Eixo Y</label>
+                        <input type="number" id="multi-dtick" value="0.5" step="0.1" min="0.01" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -117,9 +128,9 @@ Sul	5.1</textarea>
 
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-2">
                         <h3 class="font-semibold text-slate-800 text-sm mb-1">Instruções - Multivariado:</h3>
-                        <p>• Copie duas colunas direto do Excel/Google Sheets (Categoria e Valor) e cole ao lado.</p>
-                        <p>• O sistema agrupa automaticamente os dados e plota as caixas comparativas.</p>
-                        <p>• As informações estatísticas flutuantes no mouse foram desativadas.</p>
+                        <p>• Copie as colunas de categoria e valor do Excel/Google Sheets e cole ao lado.</p>
+                        <p>• Ajuste o intervalo numérico do eixo Y para uma melhor visualização.</p>
+                        <p>• Ao passar o mouse sob o gráfico de caixa, irá exibir os valores dos quantis e mediana, bem como os limites superior (upper fence) e inferior (lower fence).</p>
                     </div>
                 </div>
 
@@ -131,7 +142,7 @@ Sul	5.1</textarea>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Cole uma lista de valores numéricos:</label>
-                        <textarea id="data-input-3" rows="8" class="w-full p-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="6.5&#10;6.2&#10;7.0&#10;5.8">6.0
+                        <textarea id="data-input-3" rows="8" class="w-full p-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none">6.0
 6.2
 7.0
 5.8
@@ -150,13 +161,10 @@ Sul	5.1</textarea>
 
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-2">
                         <h3 class="font-semibold text-slate-800 text-sm mb-1">Instruções - Ramos e Folhas Decimais:</h3>
-                        <p>• Cole os números decimais ou inteiros da sua amostra.</p>
-                        <p>• <strong>Regra Decimal:</strong> A parte inteira torna-se o <strong>Ramo</strong> e a primeira casa decimal torna-se a <strong>Folha</strong>.</p>
-                        <p>• Exemplo: O valor <strong>6,5</strong> será representado como Ramo <strong>6</strong> | Folha <strong>5</strong>.</p>
+                        <p>• <strong>Regra Decimal:</strong> A parte inteira torna-se o Ramo e a primeira casa decimal torna-se a Folha (Ex: 6,5 vira Ramo 6 | Folha 5).</p>
                     </div>
                 </div>
 
-                <!-- Painel de Exibição do Ramos e Folhas -->
                 <div class="bg-slate-900 text-emerald-400 p-6 rounded-lg font-mono text-sm border border-slate-800 shadow-inner overflow-x-auto">
                     <div class="text-xs text-slate-400 border-b border-slate-700 pb-2 mb-4 flex justify-between">
                         <span>DIAGRAMA DE RAMOS E FOLHAS</span>
@@ -166,11 +174,114 @@ Sul	5.1</textarea>
                 </div>
             </div>
 
+            <!-- ABA 4: GRÁFICO DE BARRAS SIMPLES POR CATEGORIA -->
+            <div id="tab-content-4" class="tab-content hidden space-y-6">
+                <!-- Linha Principal (Sempre Visível) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Título do Gráfico</label>
+                        <input type="text" id="bar-title" value="Gráfico de Barras" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Eixo X</label>
+                        <input type="text" id="bar-xaxis" value="Categorias" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Eixo Y</label>
+                        <input type="text" id="bar-yaxis" value="Valores" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Botão para Expandir Opções Avançadas -->
+                <div>
+                    <button type="button" onclick="toggleAdvancedOptions()" id="toggle-options-btn" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 focus:outline-none">
+                        <span>⚙️ Exibir mais opções de personalização e filtros</span>
+                        <span id="toggle-arrow">▼</span>
+                    </button>
+                </div>
+
+                <!-- Opções Avançadas (Ocultas por padrão) -->
+                <div id="advanced-options-panel" class="hidden space-y-4 bg-slate-100 p-4 rounded-lg border border-slate-300">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Orientação</label>
+                            <select id="bar-orientation" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <option value="v">Vertical</option>
+                                <option value="h" selected>Horizontal</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Agregação</label>
+                            <select id="bar-agg" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <option value="soma">Soma</option>
+                                <option value="media">Média</option>
+                                <option value="mediana">Mediana</option>
+                                <option value="nenhum">Nenhum</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ordenação</label>
+                            <select id="bar-sort" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <option value="original">Original (Como digitado)</option>
+                                <option value="asc">Ascendente (Crescente)</option>
+                                <option value="desc">Descendente (Decrescente)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Intervalo do Eixo</label>
+                            <input type="number" id="bar-dtick" value="5" step="1" min="0.01" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Limitar Categorias</label>
+                            <input type="number" id="bar-limit" value="0" min="0" placeholder="0 = Todas" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" title="Digite 0 para exibir todas">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tamanho Fonte Rótulos</label>
+                            <input type="number" id="bar-fontsize" value="12" step="1" min="6" max="30" class="w-full p-2 border border-slate-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center pt-2">
+                        <label class="flex items-center cursor-pointer select-none">
+                            <input type="checkbox" id="bar-percent-toggle" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
+                            <span class="ml-2 text-xs font-bold text-slate-700 uppercase">Exibir em Formato Percentual (%)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Cole os dados (Categoria [Tab] Valor):</label>
+                        <textarea id="data-input-4" rows="8" class="w-full p-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none">Norte	15
+Nordeste	22
+Sul	18
+Centro-Oeste	12
+Sudeste	30
+Norte 20
+Norte 30</textarea>
+                        <button onclick="gerarGraficoBarras()" class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition duration-200 shadow-sm">
+                            Gerar Gráfico de Barras
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-2">
+                        <h3 class="font-semibold text-slate-800 text-sm mb-1">Instruções - Gráfico de Barras:</h3>
+                        <p>• Copie as colunas de categoria e valor do Excel/Google Sheets e cole ao lado.</p>
+                        <p>• Clique em exibir mais opções para expandir as opções do gráfico</p>
+                        <p>• As opções adicionais includem orientação do gráfico (veritical/oriozontal), agregação dos dados (caso alguma categoria apareça repetidamente nos dados), ordenação (do menor para o maior ou o contrário), limitar a quantidade de categorias (para melhor visualização), tamanho do rótulo das barras e opção de exibir em formato percentual no rótulo das barras. </p>
+                    </div>
+                </div>
+
+                <div id="bar-chart-div" class="w-full h-[450px] border border-slate-200 rounded-lg p-2 bg-white"></div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        // Função para alternar abas
         function switchTab(tabIndex) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -188,13 +299,26 @@ Sul	5.1</textarea>
             if (tabIndex === 1) gerarBoxplotSimples();
             if (tabIndex === 2) gerarBoxplotMulti();
             if (tabIndex === 3) gerarRamosEFolhas();
+            if (tabIndex === 4) gerarGraficoBarras();
         }
 
-        // --- ABA 1: BOXPLOT SIMPLES (HORIZONTAL) ---
+        function toggleAdvancedOptions() {
+            const panel = document.getElementById('advanced-options-panel');
+            const arrow = document.getElementById('toggle-arrow');
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                arrow.innerText = '▲';
+            } else {
+                panel.classList.add('hidden');
+                arrow.innerText = '▼';
+            }
+        }
+
         function gerarBoxplotSimples() {
             const rawText = document.getElementById('data-input-1').value.trim();
             const title = document.getElementById('simples-title').value;
             const xaxis = document.getElementById('simples-xaxis').value;
+            const dtickVal = parseFloat(document.getElementById('simples-dtick').value) || 0.5;
 
             if (!rawText) return;
 
@@ -216,7 +340,7 @@ Sul	5.1</textarea>
                 title: { text: title, font: { size: 16 } },
                 xaxis: { 
                     title: xaxis,
-                    dtick: 0.5 // Exibe intervalos de 0.5 (metades dos inteiros) no eixo
+                    dtick: dtickVal 
                 },
                 margin: { t: 40, b: 50, l: 40, r: 20 }
             };
@@ -224,12 +348,12 @@ Sul	5.1</textarea>
             Plotly.newPlot('boxplot-simples-div', [trace], layout, {responsive: true});
         }
 
-        // --- ABA 2: BOXPLOT MULTIVARIADO ---
         function gerarBoxplotMulti() {
             const rawText = document.getElementById('data-input-2').value.trim();
             const title = document.getElementById('multi-title').value;
             const xaxis = document.getElementById('multi-xaxis').value;
             const yaxis = document.getElementById('multi-yaxis').value;
+            const dtickVal = parseFloat(document.getElementById('multi-dtick').value) || 0.5;
 
             if (!rawText) return;
 
@@ -264,7 +388,7 @@ Sul	5.1</textarea>
                 xaxis: { title: xaxis },
                 yaxis: { 
                     title: yaxis,
-                    dtick: 0.5 // Garante visualização das metades no eixo Y
+                    dtick: dtickVal 
                 },
                 showlegend: false,
                 margin: { t: 40, b: 50, l: 60, r: 20 }
@@ -273,7 +397,6 @@ Sul	5.1</textarea>
             Plotly.newPlot('boxplot-multi-div', dataTraces, layout, {responsive: true});
         }
 
-        // --- ABA 3: DIAGRAMA DE RAMOS E FOLHAS (BASE DECIMAL) ---
         function gerarRamosEFolhas() {
             const rawText = document.getElementById('data-input-3').value.trim();
             if (!rawText) return;
@@ -291,16 +414,13 @@ Sul	5.1</textarea>
             const stems = {};
 
             nums.forEach(num => {
-                // Parte inteira é o ramo, primeiro dígito decimal é a folha
                 const stem = Math.floor(num);
-                // Extrai a primeira casa decimal de forma precisa
                 const leaf = Math.round((num - stem) * 10) % 10;
 
                 if (!stems[stem]) stems[stem] = [];
                 stems[stem].push(leaf);
             });
 
-            // Ordena as folhas dentro de cada ramo
             Object.keys(stems).forEach(stem => {
                 stems[stem].sort((a, b) => a - b);
             });
@@ -321,7 +441,153 @@ Sul	5.1</textarea>
             document.getElementById('stem-leaf-output').innerText = output;
         }
 
-        // Inicializa a primeira aba ao carregar a página
+function gerarGraficoBarras() {
+            const rawText = document.getElementById('data-input-4').value.trim();
+            const title = document.getElementById('bar-title').value;
+            const axisNameX = document.getElementById('bar-xaxis').value;
+            const axisNameY = document.getElementById('bar-yaxis').value;
+            const orientation = document.getElementById('bar-orientation').value; 
+            const aggType = document.getElementById('bar-agg').value; 
+            const sortType = document.getElementById('bar-sort').value; // 'original', 'asc', 'desc'
+            const limitVal = parseInt(document.getElementById('bar-limit').value) || 0;
+            const dtickVal = parseFloat(document.getElementById('bar-dtick').value) || 1;
+            const fontSizeVal = parseInt(document.getElementById('bar-fontsize').value) || 12;
+            const isPercent = document.getElementById('bar-percent-toggle').checked;
+
+            if (!rawText) return;
+
+            const lines = rawText.split('\n');
+            const rawData = [];
+
+            for (let line of lines) {
+                let parts = line.split('\t');
+                if (parts.length < 2) parts = line.split(/[\s,]+/);
+                if (parts.length >= 2) {
+                    const label = parts[0].trim();
+                    const val = parseFloat(parts[1].trim().replace(',', '.'));
+                    if (label && !isNaN(val)) {
+                        rawData.push({ label, val });
+                    }
+                }
+            }
+
+            if (rawData.length === 0) {
+                alert("Nenhum dado válido encontrado.");
+                return;
+            }
+
+            const groups = {};
+            const occurrenceCounts = {};
+
+            rawData.forEach(item => {
+                occurrenceCounts[item.label] = (occurrenceCounts[item.label] || 0) + 1;
+                if (!groups[item.label]) {
+                    groups[item.label] = [];
+                }
+                groups[item.label].push(item.val);
+            });
+
+            const hasDuplicates = Object.values(occurrenceCounts).some(count => count > 1);
+            if (aggType === 'nenhum' && hasDuplicates) {
+                alert("Erro: A opção 'Nenhum' não pode ser utilizada porque existem categorias duplicadas nos dados. Escolha Soma, Média ou Mediana.");
+                return;
+            }
+
+            let processedData = [];
+            Object.keys(groups).forEach(cat => {
+                const vals = groups[cat];
+                let finalVal = 0;
+                if (aggType === 'nenhum' || aggType === 'soma') {
+                    finalVal = vals.reduce((a, b) => a + b, 0);
+                } else if (aggType === 'media') {
+                    finalVal = vals.reduce((a, b) => a + b, 0) / vals.length;
+                } else if (aggType === 'mediana') {
+                    const sorted = [...vals].sort((a, b) => a - b);
+                    const n = sorted.length;
+                    finalVal = n % 2 === 0 ? (sorted[n/2 - 1] + sorted[n/2]) / 2 : sorted[Math.floor(n/2)];
+                }
+                processedData.push({ category: cat, value: finalVal });
+            });
+
+            // Aplica ordenação se solicitada
+            if (sortType === 'asc') {
+                processedData.sort((a, b) => a.value - b.value);
+            } else if (sortType === 'desc') {
+                processedData.sort((a, b) => b.value - a.value);
+            }
+
+            // Aplica filtro de limite (Top N) se informado (> 0)
+            if (limitVal > 0) {
+                processedData = processedData.slice(0, limitVal);
+            }
+
+            const categories = processedData.map(d => d.category);
+            const finalValues = processedData.map(d => d.value);
+
+            // Formatação dos rótulos numéricos (com opção de percentual)
+            const textLabels = finalValues.map(v => {
+                const numStr = Number.isInteger(v) ? v.toString() : v.toFixed(1);
+                return isPercent ? `${numStr}%` : numStr;
+            });
+
+            // Cálculo dinâmico para evitar corte dos rótulos externos com base no valor máximo e tamanho da fonte
+            const maxVal = Math.max(...finalValues, 1);
+            const topMargin = Math.max(50, fontSizeVal * 3.5); 
+            const yAxisRangeMax = maxVal * 1.20; // 20% de respiro automático no topo
+
+            let trace = {};
+            let layout = {};
+
+            if (orientation === 'v') {
+                trace = {
+                    x: categories,
+                    y: finalValues,
+                    text: textLabels,
+                    textposition: 'outside',
+                    textfont: { size: fontSizeVal },
+                    type: 'bar',
+                    marker: { color: '#2563eb' }
+                };
+                layout = {
+                    title: { text: title, font: { size: 16 } },
+                    xaxis: { title: axisNameX },
+                    yaxis: { 
+                        title: axisNameY, 
+                        dtick: dtickVal,
+                        range: [0, yAxisRangeMax] // Expande o eixo automaticamente para o texto caber
+                    },
+                    margin: { t: topMargin, b: 50, l: 60, r: 30 }
+                };
+            } else {
+                const xAxisRangeMax = maxVal * 1.20;
+                trace = {
+                    y: categories,
+                    x: finalValues,
+                    text: textLabels,
+                    textposition: 'outside',
+                    textfont: { size: fontSizeVal },
+                    type: 'bar',
+                    orientation: 'h',
+                    marker: { color: '#2563eb' }
+                };
+                layout = {
+                    title: { text: title, font: { size: 16 } },
+                    xaxis: { 
+                        title: axisNameY, 
+                        dtick: dtickVal,
+                        range: [0, xAxisRangeMax] // Expande o eixo automaticamente para o texto caber na horizontal
+                    },
+                    yaxis: { 
+                        title: { text: axisNameX, standoff: 25 }, 
+                        dtick: 1 
+                    },
+                    margin: { t: 40, b: 50, l: 140, r: 60 }
+                };
+            }
+
+            Plotly.newPlot('bar-chart-div', [trace], layout, {responsive: true});
+        }
+
         window.onload = function() {
             gerarBoxplotSimples();
         };
